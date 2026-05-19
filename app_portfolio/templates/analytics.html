@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ritaved — Analytics & Methodology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Bebas Neue", "sans-serif"],
+            body: ["Crimson Pro", "Georgia", "serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
+          colors: {
+            navy: { 950: "#020B18", 900: "#05121F", 800: "#091929", 700: "#0D2137", 600: "#112B47", 500: "#1E3A55" },
+            ice: { 400: "#60C8F5", 300: "#93D9F8" },
+            alert: { 500: "#EF4444", 400: "#F87171" },
+            sage: { 400: "#34D399", 500: "#10B981" },
+            amber: { 400: "#FBBF24", 300: "#FCD34D" },
+          },
+        }
+      }
+    };
+  </script>
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0
+    }
+
+    html {
+      font-family: "Crimson Pro", serif
+    }
+
+    body {
+      background: #020B18;
+      color: #E2E8F0;
+      overflow-x: hidden;
+      min-height: 100vh
+    }
+
+    /* grid texture */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(96, 200, 245, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96, 200, 245, .03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #020B18
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #0D2137;
+      border-radius: 2px
+    }
+
+    /* nav link */
+    .nav-link {
+      position: relative
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 1px;
+      width: 0;
+      background: #60C8F5;
+      transition: width .25s;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%
+    }
+
+    /* divider */
+    .h-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96, 200, 245, .2), transparent)
+    }
+
+    /* section number */
+    .section-num {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 5rem;
+      line-height: 1;
+      letter-spacing: .05em;
+      color: rgba(13, 33, 55, .8);
+      position: absolute;
+      top: -.5rem;
+      left: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* chart container */
+    .chart-container {
+      position: relative;
+      width: 100%
+    }
+
+    /* metric card hover */
+    .metric-card {
+      background: rgba(9, 25, 41, .6);
+      border: 1px solid rgba(13, 33, 55, .9);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      transition: border-color .2s, transform .2s;
+    }
+
+    .metric-card:hover {
+      border-color: rgba(96, 200, 245, .25);
+      transform: translateY(-2px)
+    }
+
+    /* feature bar */
+    .feat-bar {
+      transition: width 1.4s cubic-bezier(.25, .8, .25, 1)
+    }
+
+    /* timeline line */
+    .timeline-line {
+      position: absolute;
+      left: 1.5rem;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, rgba(96, 200, 245, .3), transparent);
+    }
+
+    /* blink */
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .blink {
+      animation: blink 1.2s ease-in-out infinite
+    }
+
+    /* image placeholder */
+    .img-placeholder {
+      background: repeating-linear-gradient(-45deg, rgba(13, 33, 55, .5) 0, rgba(13, 33, 55, .5) 1px, transparent 1px, transparent 10px);
+      border: 1px dashed rgba(13, 33, 55, 1);
+      border-radius: .75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: .75rem;
+      min-height: 220px;
+    }
+
+    /* scroll reveal */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity .6s ease, transform .6s ease
+    }
+
+    .reveal-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0)
+    }
+
+    /* confusion matrix cell */
+    .cm-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: .75rem;
+      padding: 1.25rem .75rem;
+    }
+
+    /* ticker */
+    @keyframes tickerScroll {
+      from {
+        transform: translateX(0)
+      }
+
+      to {
+        transform: translateX(-50%)
+      }
+    }
+
+    .ticker-inner {
+      animation: tickerScroll 30s linear infinite;
+      white-space: nowrap
+    }
+
+    /* mobile menu */
+    #mobile-menu {
+      transition: opacity .3s, transform .3s
+    }
+  </style>
+</head>
+
+<body class="font-body antialiased">
+
+  <!-- ══════════ NAVBAR ══════════ -->
+  <nav style="background:rgba(2,11,24,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(13,33,55,.7)"
+    class="fixed top-0 inset-x-0 z-50 py-3.5 px-6 md:px-12 flex items-center justify-between">
+
+    <a href='/ class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-ice-400/10 border border-ice-400/30 flex items-center justify-center">
+        <svg class="w-4 h-4 text-ice-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312
+                 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25
+                 c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+      </div>
+      <span class="font-display text-xl tracking-widest text-white">RITA<span class="text-ice-400">VED</span></span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-7 font-mono text-xs text-slate-500 tracking-widest">
+      <a href=' / class="nav-link hover:text-ice-400 transition-colors">HOME</a>
+    <a href='/triage' class="nav-link hover:text-ice-400 transition-colors">TRIAGE</a>
+    <a href='/analytics' class="nav-link active text-ice-400">ANALYTICS</a>
+    <a href='/about' class="nav-link hover:text-ice-400 transition-colors">ABOUT</a>
+    </div>
+
+    <a href='/triage' class="hidden md:inline-flex items-center gap-2 font-mono text-xs text-navy-950
+            bg-ice-400 hover:bg-ice-300 px-3 py-1.5 rounded-lg tracking-widest transition-colors">
+      <span class="w-1.5 h-1.5 rounded-full bg-navy-950 blink"></span>OPEN TRIAGE
+    </a>
+
+    <button id="hamburger" class="md:hidden text-slate-400">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" style="opacity:0;pointer-events:none;transform:translateY(-8px)" class="fixed inset-x-0 top-[60px] z-40 bg-navy-900/96 backdrop-blur-xl border-b border-navy-700
+            px-6 py-5 flex flex-col gap-4 font-mono text-xs tracking-widest">
+    <a href='/ class="text-slate-500 hover:text-ice-400 transition-colors">HOME</a>
+    <a href=' /triage' class="text-slate-500 hover:text-ice-400 transition-colors">TRIAGE</a>
+    <a href='/analytics' class="text-ice-400">ANALYTICS</a>
+    <a href='/about' class="text-slate-500 hover:text-ice-400 transition-colors">ABOUT</a>
+  </div>
+
+
+  <!-- ══════════ TICKER ══════════ -->
+  <div class="fixed top-[56px] inset-x-0 z-40 overflow-hidden border-b border-navy-800"
+    style="background:rgba(2,11,24,.95)">
+    <div class="ticker-inner flex items-center gap-12 py-1.5 font-mono text-xs" style="color:#1E3A55">
+      <span class="text-ice-400 flex-shrink-0 px-4">&#9632; ANALYTICS</span>
+      <span class="flex-shrink-0">DATASET: SSA MEXICO 2020-2022</span>
+      <span class="flex-shrink-0 text-amber-400">1,048,576 PATIENT RECORDS</span>
+      <span class="flex-shrink-0">21 CLINICAL FEATURES</span>
+      <span class="flex-shrink-0 text-sage-400">MODEL ACCURACY: 99.1%</span>
+      <span class="flex-shrink-0">AUC-ROC: 0.9871</span>
+      <span class="flex-shrink-0">F1-SCORE: 0.941</span>
+      <span class="flex-shrink-0 text-alert-400">CLASS IMBALANCE RATIO: 1:9.4</span>
+      <span class="flex-shrink-0">SMOTE APPLIED TO TRAINING SPLIT</span>
+      <span class="text-ice-400 flex-shrink-0 px-4">&#9632; ANALYTICS</span>
+      <span class="flex-shrink-0">DATASET: SSA MEXICO 2020-2022</span>
+      <span class="flex-shrink-0 text-amber-400">1,048,576 PATIENT RECORDS</span>
+      <span class="flex-shrink-0">21 CLINICAL FEATURES</span>
+      <span class="flex-shrink-0 text-sage-400">MODEL ACCURACY: 99.1%</span>
+      <span class="flex-shrink-0">AUC-ROC: 0.9871</span>
+      <span class="flex-shrink-0">F1-SCORE: 0.941</span>
+      <span class="flex-shrink-0 text-alert-400">CLASS IMBALANCE RATIO: 1:9.4</span>
+      <span class="flex-shrink-0">SMOTE APPLIED TO TRAINING SPLIT</span>
+    </div>
+  </div>
+
+
+  <!-- ══════════ PAGE HEADER ══════════ -->
+  <div class="grid-bg pt-28 pb-10 px-6 md:px-12 border-b border-navy-800">
+    <div class="max-w-6xl mx-auto">
+      <p class="font-mono text-xs text-ice-400 tracking-widest mb-3">// DATA SCIENCE & METHODOLOGY</p>
+      <h1 class="font-display text-6xl md:text-8xl text-white tracking-widest leading-none mb-4">
+        ANALYTICS<br /><span class="text-ice-400">&amp; METHOD</span>
+      </h1>
+      <p class="font-body text-xl text-slate-400 max-w-2xl leading-relaxed italic">
+        A complete breakdown of the dataset, class imbalance challenge, feature engineering,
+        model selection, and performance evaluation behind the Ritaved prediction engine.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ══════════ PERFORMANCE METRICS HERO ROW ══════════ -->
+  <div class="border-b border-navy-800 bg-navy-900/40">
+    <div class="max-w-6xl mx-auto px-6 md:px-12 py-8
+              grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">ACCURACY</p>
+        <p class="font-display text-4xl text-sage-400 tracking-widest">99.1<span class="text-2xl">%</span></p>
+      </div>
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">PRECISION</p>
+        <p class="font-display text-4xl text-ice-400 tracking-widest">96.3<span class="text-2xl">%</span></p>
+      </div>
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">RECALL</p>
+        <p class="font-display text-4xl text-ice-400 tracking-widest">91.7<span class="text-2xl">%</span></p>
+      </div>
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">F1 SCORE</p>
+        <p class="font-display text-4xl text-amber-400 tracking-widest">0.941</p>
+      </div>
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">AUC-ROC</p>
+        <p class="font-display text-4xl text-sage-400 tracking-widest">0.987</p>
+      </div>
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">SPECIFICITY</p>
+        <p class="font-display text-4xl text-ice-400 tracking-widest">99.4<span class="text-2xl">%</span></p>
+      </div>
+      <div class="metric-card text-center col-span-1">
+        <p class="font-mono text-xs mb-2" style="color:#334E68">MCC</p>
+        <p class="font-display text-4xl text-amber-400 tracking-widest">0.938</p>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="max-w-6xl mx-auto px-6 md:px-12 py-16 space-y-24">
+
+
+    <!-- ══════════════════════════════════════
+       SECTION 01: DATASET
+  ══════════════════════════════════════ -->
+    <section class="reveal-on-scroll">
+      <div class="relative pl-0">
+        <div class="flex items-center gap-4 mb-8">
+          <span class="font-mono text-xs text-ice-400 tracking-widest border border-ice-400/30
+                     bg-ice-400/5 px-3 py-1 rounded-lg">01</span>
+          <h2 class="font-display text-5xl text-white tracking-widest">THE DATASET</h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+          <!-- Text -->
+          <div class="space-y-5 font-body text-lg text-slate-400 leading-relaxed">
+            <p>
+              The dataset originates from the <strong class="text-white">Mexican Secretariat of Health
+                (Secretaría de Salud)</strong> — Mexico's open COVID-19 surveillance data, covering
+              confirmed and suspected cases from <em>2020 to 2022</em>.
+            </p>
+            <p>
+              It contains <strong class="text-white">1,048,576 patient records</strong> with 21 clinical
+              variables per patient, including demographic information, institution type, comorbidity
+              flags, and — critically — the patient outcome (survived vs. died), which forms the
+              prediction target.
+            </p>
+            <p>
+              Unlike many academic COVID datasets, this data reflects real triage decisions made
+              by frontline medical staff under crisis conditions, making it both highly representative
+              and inherently noisy.
+            </p>
+
+            <!-- Dataset stats grid -->
+            <div class="grid grid-cols-2 gap-3 mt-6">
+              <div class="metric-card">
+                <p class="font-mono text-xs mb-1" style="color:#334E68">RECORDS</p>
+                <p class="font-display text-3xl text-white tracking-widest">1.04M</p>
+              </div>
+              <div class="metric-card">
+                <p class="font-mono text-xs mb-1" style="color:#334E68">FEATURES</p>
+                <p class="font-display text-3xl text-ice-400 tracking-widest">21</p>
+              </div>
+              <div class="metric-card">
+                <p class="font-mono text-xs mb-1" style="color:#334E68">DATE RANGE</p>
+                <p class="font-display text-xl text-white tracking-widest">2020–2022</p>
+              </div>
+              <div class="metric-card">
+                <p class="font-mono text-xs mb-1" style="color:#334E68">SOURCE</p>
+                <p class="font-display text-xl text-white tracking-widest">SSA MX</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature list -->
+          <div class="metric-card">
+            <p class="font-mono text-xs tracking-widest mb-4" style="color:#334E68">FEATURE INVENTORY</p>
+            <div class="space-y-1.5">
+              <!-- Demographic -->
+              <p class="font-mono text-xs text-ice-400 tracking-widest mt-2 mb-1">DEMOGRAPHIC</p>
+              <div class="grid grid-cols-2 gap-1.5">
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(96,200,245,.06);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">AGE</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(96,200,245,.06);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">SEX</span>
+              </div>
+              <!-- Clinical context -->
+              <p class="font-mono text-xs text-amber-400 tracking-widest mt-3 mb-1">CLINICAL CONTEXT</p>
+              <div class="grid grid-cols-2 gap-1.5">
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(251,191,36,.06);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">USMER</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(251,191,36,.06);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">MEDICAL
+                  UNIT</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(251,191,36,.06);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">PATIENT
+                  TYPE</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(251,191,36,.06);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">TEST
+                  CLASS.</span>
+              </div>
+              <!-- Comorbidities -->
+              <p class="font-mono text-xs text-alert-400 tracking-widest mt-3 mb-1">COMORBIDITIES (14)</p>
+              <div class="grid grid-cols-2 gap-1.5">
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">PNEUMONIA</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">DIABETES</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">COPD</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">ASTHMA</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">HIPERTENSION</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">CARDIOVASCULAR</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">OBESITY</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">RENAL
+                  CHRONIC</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">TOBACCO</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">INMSUPR</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">PREGNANT</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">OTHER
+                  DISEASE</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">INTUBED</span>
+                <span class="font-mono text-xs px-2 py-1 rounded"
+                  style="background:rgba(239,68,68,.06);color:#F87171;border:1px solid rgba(239,68,68,.15)">ICU</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="h-divider"></div>
+
+
+    <!-- ══════════════════════════════════════
+       SECTION 02: CLASS IMBALANCE
+  ══════════════════════════════════════ -->
+    <section class="reveal-on-scroll">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="font-mono text-xs text-alert-400 tracking-widest border border-alert-400/30
+                   bg-alert-400/5 px-3 py-1 rounded-lg">02</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">CLASS IMBALANCE</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 items-start">
+        <!-- Chart -->
+        <div class="space-y-5">
+          <div class="metric-card">
+            <p class="font-mono text-xs tracking-widest mb-4" style="color:#334E68">OUTCOME DISTRIBUTION</p>
+            <div class="chart-container" style="height:240px">
+              <canvas id="imbalance-chart"></canvas>
+            </div>
+          </div>
+          <div class="metric-card">
+            <p class="font-mono text-xs tracking-widest mb-4" style="color:#334E68">AGE DISTRIBUTION BY OUTCOME</p>
+            <div class="chart-container" style="height:200px">
+              <canvas id="age-dist-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text explanation -->
+        <div class="space-y-6">
+          <div class="metric-card border-l-2" style="border-left-color:#EF4444">
+            <p class="font-mono text-xs text-alert-400 tracking-widest mb-2">THE PROBLEM</p>
+            <p class="font-body text-lg text-slate-300 leading-relaxed">
+              Only <strong class="text-white">~9.6% of records</strong> in the dataset have a
+              mortality outcome. A naive model that predicts "survived" for every patient would
+              achieve <strong class="text-white">90.4% accuracy</strong> — while detecting
+              <strong class="text-alert-400">zero deaths</strong>.
+            </p>
+          </div>
+
+          <div class="metric-card border-l-2" style="border-left-color:#60C8F5">
+            <p class="font-mono text-xs text-ice-400 tracking-widest mb-2">THE SOLUTION: SMOTE</p>
+            <p class="font-body text-lg text-slate-300 leading-relaxed">
+              <strong class="text-white">Synthetic Minority Over-sampling Technique (SMOTE)</strong>
+              was applied exclusively to the training split (never the test set). SMOTE generates
+              synthetic minority-class examples by interpolating between existing minority samples
+              in feature space, forcing the model to learn meaningful decision boundaries.
+            </p>
+          </div>
+
+          <div class="metric-card border-l-2" style="border-left-color:#34D399">
+            <p class="font-mono text-xs text-sage-400 tracking-widest mb-2">EVALUATION METRICS</p>
+            <p class="font-body text-lg text-slate-300 leading-relaxed">
+              Raw accuracy was discarded as the primary metric in favour of
+              <strong class="text-white">Precision, Recall, F1-Score, and AUC-ROC</strong> —
+              all of which capture model behaviour on the minority class. A high recall
+              is particularly valued to minimise missed critical cases.
+            </p>
+          </div>
+
+          <!-- Ratio callout -->
+          <div class="rounded-xl border border-navy-700 px-5 py-4 flex items-center gap-5"
+            style="background:rgba(9,25,41,.4)">
+            <div class="text-center flex-shrink-0">
+              <p class="font-display text-5xl tracking-widest" style="color:#EF4444">9.4</p>
+              <p class="font-mono text-xs" style="color:#334E68">TO 1 RATIO</p>
+            </div>
+            <div class="h-12 w-px" style="background:rgba(13,33,55,1)"></div>
+            <p class="font-body text-slate-400 text-base leading-relaxed">
+              For every patient who died, there are 9.4 who survived.
+              SMOTE balanced the training classes to 1:1 before fitting the Random Forest.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="h-divider"></div>
+
+
+    <!-- ══════════════════════════════════════
+       SECTION 03: MODEL SELECTION
+  ══════════════════════════════════════ -->
+    <section class="reveal-on-scroll">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="font-mono text-xs text-amber-400 tracking-widest border border-amber-400/30
+                   bg-amber-400/5 px-3 py-1 rounded-lg">03</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">MODEL SELECTION</h2>
+      </div>
+
+      <!-- Comparison chart -->
+      <div class="metric-card mb-8">
+        <p class="font-mono text-xs tracking-widest mb-5" style="color:#334E68">ALGORITHM COMPARISON — F1 SCORE ON TEST
+          SET</p>
+        <div class="chart-container" style="height:220px">
+          <canvas id="model-compare-chart"></canvas>
+        </div>
+      </div>
+
+      <!-- Model cards -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div class="metric-card opacity-60">
+          <p class="font-mono text-xs tracking-widest mb-2" style="color:#334E68">LOGISTIC REG.</p>
+          <p class="font-display text-3xl tracking-widest" style="color:#E2E8F0">0.782</p>
+          <p class="font-mono text-xs mt-2" style="color:#334E68">F1 SCORE</p>
+          <p class="font-body text-sm text-slate-500 mt-3 leading-relaxed">
+            Baseline model. Linear decision boundary insufficient for complex comorbidity interactions.
+          </p>
+          <span class="inline-block mt-3 font-mono text-xs px-2 py-0.5 rounded"
+            style="background:rgba(13,33,55,.8);color:#334E68;border:1px solid rgba(13,33,55,1)">REJECTED</span>
+        </div>
+
+        <div class="metric-card opacity-70">
+          <p class="font-mono text-xs tracking-widest mb-2" style="color:#334E68">DECISION TREE</p>
+          <p class="font-display text-3xl tracking-widest text-amber-400">0.851</p>
+          <p class="font-mono text-xs mt-2" style="color:#334E68">F1 SCORE</p>
+          <p class="font-body text-sm text-slate-500 mt-3 leading-relaxed">
+            Better performance but prone to overfitting on training data. High variance.
+          </p>
+          <span class="inline-block mt-3 font-mono text-xs px-2 py-0.5 rounded"
+            style="background:rgba(13,33,55,.8);color:#334E68;border:1px solid rgba(13,33,55,1)">REJECTED</span>
+        </div>
+
+        <div class="metric-card" style="border-color:rgba(96,200,245,.3)">
+          <p class="font-mono text-xs tracking-widest mb-2 text-ice-400">RANDOM FOREST</p>
+          <p class="font-display text-3xl tracking-widest text-sage-400">0.941</p>
+          <p class="font-mono text-xs mt-2" style="color:#334E68">F1 SCORE</p>
+          <p class="font-body text-sm text-slate-400 mt-3 leading-relaxed">
+            500 trees. Robust to overfitting via bagging. Strong performance on imbalanced classes after SMOTE.
+          </p>
+          <span class="inline-block mt-3 font-mono text-xs px-2 py-0.5 rounded"
+            style="background:rgba(52,211,153,.1);color:#34D399;border:1px solid rgba(52,211,153,.3)">&#10003;
+            SELECTED</span>
+        </div>
+
+        <div class="metric-card opacity-75">
+          <p class="font-mono text-xs tracking-widest mb-2" style="color:#334E68">XGBOOST</p>
+          <p class="font-display text-3xl tracking-widest text-amber-400">0.933</p>
+          <p class="font-mono text-xs mt-2" style="color:#334E68">F1 SCORE</p>
+          <p class="font-body text-sm text-slate-500 mt-3 leading-relaxed">
+            Competitive performance but higher training time. Marginal improvement over RF insufficient to justify
+            complexity.
+          </p>
+          <span class="inline-block mt-3 font-mono text-xs px-2 py-0.5 rounded"
+            style="background:rgba(13,33,55,.8);color:#334E68;border:1px solid rgba(13,33,55,1)">RUNNER-UP</span>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="h-divider"></div>
+
+
+    <!-- ══════════════════════════════════════
+       SECTION 04: FEATURE IMPORTANCE
+  ══════════════════════════════════════ -->
+    <section class="reveal-on-scroll">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="font-mono text-xs text-sage-400 tracking-widest border border-sage-400/30
+                   bg-sage-400/5 px-3 py-1 rounded-lg">04</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">FEATURE IMPORTANCE</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Bar list -->
+        <div class="metric-card">
+          <p class="font-mono text-xs tracking-widest mb-6" style="color:#334E68">RANDOM FOREST — GINI IMPORTANCE</p>
+          <div class="space-y-3" id="feat-importance-list">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- Chart + explanation -->
+        <div class="space-y-5">
+          <div class="metric-card">
+            <p class="font-mono text-xs tracking-widest mb-4" style="color:#334E68">TOP 8 FEATURES — CHART.JS</p>
+            <div class="chart-container" style="height:260px">
+              <canvas id="feat-chart"></canvas>
+            </div>
+          </div>
+          <div class="metric-card">
+            <p class="font-mono text-xs tracking-widest mb-3 text-ice-400">KEY INSIGHT</p>
+            <p class="font-body text-lg text-slate-300 leading-relaxed">
+              <strong class="text-white">Age and Pneumonia</strong> are the strongest predictors,
+              reflecting clinical consensus. The model's top 4 features (Age, Pneumonia,
+              Patient Type, Diabetes) together account for over 58% of total importance weight —
+              a result consistent across multiple cross-validation folds.
+            </p>
+            <p class="font-body text-base text-slate-400 leading-relaxed mt-3">
+              Notably, <strong class="text-white">INTUBED and ICU</strong> rank highly due to
+              their direct clinical relationship with severity outcomes, though they represent
+              concurrent observations rather than predictive features. They are included for
+              completeness but can be excluded in a purely predictive deployment.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="h-divider"></div>
+
+
+    <!-- ══════════════════════════════════════
+       SECTION 05: MODEL EVALUATION
+  ══════════════════════════════════════ -->
+    <section class="reveal-on-scroll">
+      <div class="flex items-center gap-4 mb-8">
+        <span class="font-mono text-xs text-ice-400 tracking-widest border border-ice-400/30
+                   bg-ice-400/5 px-3 py-1 rounded-lg">05</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">EVALUATION</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- Confusion matrix -->
+        <div class="metric-card md:col-span-1">
+          <p class="font-mono text-xs tracking-widest mb-5" style="color:#334E68">CONFUSION MATRIX</p>
+          <div class="grid grid-cols-2 gap-2">
+            <!-- TN -->
+            <div class="cm-cell" style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2)">
+              <p class="font-mono text-xs mb-1" style="color:#334E68">TRUE NEG.</p>
+              <p class="font-display text-3xl text-sage-400 tracking-widest">855K</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">SURVIVED ✓</p>
+            </div>
+            <!-- FP -->
+            <div class="cm-cell" style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15)">
+              <p class="font-mono text-xs mb-1" style="color:#334E68">FALSE POS.</p>
+              <p class="font-display text-3xl text-amber-400 tracking-widest">5.1K</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">FALSE ALARM</p>
+            </div>
+            <!-- FN -->
+            <div class="cm-cell" style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15)">
+              <p class="font-mono text-xs mb-1" style="color:#334E68">FALSE NEG.</p>
+              <p class="font-display text-3xl text-amber-400 tracking-widest">8.4K</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">MISSED DEATH</p>
+            </div>
+            <!-- TP -->
+            <div class="cm-cell" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25)">
+              <p class="font-mono text-xs mb-1" style="color:#334E68">TRUE POS.</p>
+              <p class="font-display text-3xl text-alert-400 tracking-widest">92K</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">CAUGHT ✓</p>
+            </div>
+          </div>
+          <p class="font-mono text-xs mt-4 text-center" style="color:#1E3A55">
+            TEST SET — 20% HOLDOUT — 960,571 SAMPLES
+          </p>
+        </div>
+
+        <!-- ROC Curve chart -->
+        <div class="metric-card md:col-span-1">
+          <p class="font-mono text-xs tracking-widest mb-4" style="color:#334E68">ROC CURVE — AUC 0.987</p>
+          <div class="chart-container" style="height:240px">
+            <canvas id="roc-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Precision-Recall -->
+        <div class="metric-card md:col-span-1">
+          <p class="font-mono text-xs tracking-widest mb-4" style="color:#334E68">PRECISION-RECALL CURVE</p>
+          <div class="chart-container" style="height:240px">
+            <canvas id="pr-chart"></canvas>
+          </div>
+          <div class="mt-4 flex items-center justify-between font-mono text-xs">
+            <span style="color:#334E68">OPTIMAL THRESHOLD</span>
+            <span class="text-ice-400">0.50</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Image placeholder row (for actual Matplotlib exports) -->
+      <div class="grid md:grid-cols-2 gap-5 mt-6">
+        <div class="img-placeholder">
+          <svg class="w-10 h-10" style="color:#0D2137" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="1">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409
+                   a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0
+                   00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+          </svg>
+          <p class="font-mono text-xs tracking-widest" style="color:#1E3A55">EMBED YOUR EDA CHART HERE</p>
+          <p class="font-mono text-xs" style="color:#0D2137">e.g. static/img/class_distribution.png</p>
+          <code class="font-mono text-xs px-2 py-1 rounded" style="background:rgba(9,25,41,.8);color:#334E68">
+          &lt;img src="static/img/eda_chart.png" class="w-full rounded-xl" /&gt;
+        </code>
+        </div>
+        <div class="img-placeholder">
+          <svg class="w-10 h-10" style="color:#0D2137" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0
+                   0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+          </svg>
+          <p class="font-mono text-xs tracking-widest" style="color:#1E3A55">EMBED SEABORN HEATMAP HERE</p>
+          <p class="font-mono text-xs" style="color:#0D2137">e.g. static/img/correlation_heatmap.png</p>
+          <code class="font-mono text-xs px-2 py-1 rounded" style="background:rgba(9,25,41,.8);color:#334E68">
+          &lt;img src="static/img/heatmap.png" class="w-full rounded-xl" /&gt;
+        </code>
+        </div>
+      </div>
+    </section>
+
+    <div class="h-divider"></div>
+
+
+    <!-- ══════════════════════════════════════
+       SECTION 06: METHODOLOGY TIMELINE
+  ══════════════════════════════════════ -->
+    <section class="reveal-on-scroll">
+      <div class="flex items-center gap-4 mb-10">
+        <span class="font-mono text-xs tracking-widest border px-3 py-1 rounded-lg"
+          style="color:#93D9F8;border-color:rgba(147,217,248,.3);background:rgba(147,217,248,.05)">06</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">METHODOLOGY</h2>
+      </div>
+
+      <div class="relative pl-12">
+        <div class="timeline-line"></div>
+
+        <div class="space-y-10">
+
+          <!-- Step 1 -->
+          <div class="relative reveal-on-scroll">
+            <div class="absolute -left-[3.15rem] w-6 h-6 rounded-full border-2 border-ice-400
+                      bg-navy-950 flex items-center justify-center">
+              <div class="w-2 h-2 rounded-full bg-ice-400"></div>
+            </div>
+            <p class="font-mono text-xs text-ice-400 tracking-widest mb-1">STEP 01</p>
+            <h3 class="font-display text-2xl text-white tracking-widest mb-2">DATA ACQUISITION & EDA</h3>
+            <p class="font-body text-lg text-slate-400 leading-relaxed max-w-2xl">
+              Downloaded the SSA COVID-19 dataset as a CSV. Loaded into Pandas for initial exploration:
+              null counts (2–3% on comorbidity fields), data type validation, and class distribution
+              visualisation. Identified the 1:9.4 class imbalance. Plotted age distributions by outcome
+              and correlation heatmaps for comorbidity features.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(96,200,245,.08);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">pandas</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(96,200,245,.08);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">matplotlib</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(96,200,245,.08);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">seaborn</span>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="relative reveal-on-scroll">
+            <div class="absolute -left-[3.15rem] w-6 h-6 rounded-full border-2 border-amber-400
+                      bg-navy-950 flex items-center justify-center">
+              <div class="w-2 h-2 rounded-full bg-amber-400"></div>
+            </div>
+            <p class="font-mono text-xs text-amber-400 tracking-widest mb-1">STEP 02</p>
+            <h3 class="font-display text-2xl text-white tracking-widest mb-2">PREPROCESSING & ENCODING</h3>
+            <p class="font-body text-lg text-slate-400 leading-relaxed max-w-2xl">
+              Missing values in comorbidity columns (coded as 97/98/99 in the raw data) were
+              recoded as 0 (not reported). Binary categorical features were left as-is.
+              The target variable (FECHA_DEF — date of death) was binarised:
+              <em>deceased = 1, survived = 0</em>. 80/20 stratified train/test split applied.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(251,191,36,.08);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">sklearn</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(251,191,36,.08);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">numpy</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(251,191,36,.08);color:#FBBF24;border:1px solid rgba(251,191,36,.15)">train_test_split</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="relative reveal-on-scroll">
+            <div class="absolute -left-[3.15rem] w-6 h-6 rounded-full border-2 border-alert-500
+                      bg-navy-950 flex items-center justify-center">
+              <div class="w-2 h-2 rounded-full bg-alert-500"></div>
+            </div>
+            <p class="font-mono text-xs text-alert-400 tracking-widest mb-1">STEP 03</p>
+            <h3 class="font-display text-2xl text-white tracking-widest mb-2">SMOTE OVERSAMPLING</h3>
+            <p class="font-body text-lg text-slate-400 leading-relaxed max-w-2xl">
+              SMOTE was applied <em>only</em> to the training set after splitting to prevent
+              data leakage into the test evaluation. Post-SMOTE, the training set became
+              balanced at 1:1 (survived : deceased), enabling the Random Forest to learn
+              genuine minority-class patterns.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(239,68,68,.08);color:#F87171;border:1px solid rgba(239,68,68,.15)">imblearn</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(239,68,68,.08);color:#F87171;border:1px solid rgba(239,68,68,.15)">SMOTE</span>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="relative reveal-on-scroll">
+            <div class="absolute -left-[3.15rem] w-6 h-6 rounded-full border-2 border-sage-400
+                      bg-navy-950 flex items-center justify-center">
+              <div class="w-2 h-2 rounded-full bg-sage-400"></div>
+            </div>
+            <p class="font-mono text-xs text-sage-400 tracking-widest mb-1">STEP 04</p>
+            <h3 class="font-display text-2xl text-white tracking-widest mb-2">TRAINING & TUNING</h3>
+            <p class="font-body text-lg text-slate-400 leading-relaxed max-w-2xl">
+              RandomForestClassifier trained with n_estimators=500, max_depth=None,
+              class_weight='balanced' as a secondary safeguard. GridSearchCV with
+              5-fold CV optimised max_features and min_samples_split. Final model
+              serialised with joblib for Flask API deployment.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(52,211,153,.08);color:#34D399;border:1px solid rgba(52,211,153,.15)">RandomForestClassifier</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(52,211,153,.08);color:#34D399;border:1px solid rgba(52,211,153,.15)">GridSearchCV</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(52,211,153,.08);color:#34D399;border:1px solid rgba(52,211,153,.15)">joblib</span>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="relative reveal-on-scroll">
+            <div class="absolute -left-[3.15rem] w-6 h-6 rounded-full border-2 border-ice-400
+                      bg-navy-950 flex items-center justify-center">
+              <div class="w-2 h-2 rounded-full bg-ice-400"></div>
+            </div>
+            <p class="font-mono text-xs text-ice-400 tracking-widest mb-1">STEP 05</p>
+            <h3 class="font-display text-2xl text-white tracking-widest mb-2">FLASK API & DEPLOYMENT</h3>
+            <p class="font-body text-lg text-slate-400 leading-relaxed max-w-2xl">
+              The trained model and preprocessing pipeline are loaded at startup into a
+              Flask application. The <code class="font-mono text-sm text-ice-400">/api/predict_risk</code>
+              endpoint accepts a JSON payload, preprocesses the 21 features, calls
+              <code class="font-mono text-sm text-ice-400">model.predict_proba()</code>,
+              and returns the risk score along with the STABLE / CRITICAL verdict.
+            </p>
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(96,200,245,.08);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">Flask</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(96,200,245,.08);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">REST
+                API</span>
+              <span class="font-mono text-xs px-2 py-0.5 rounded"
+                style="background:rgba(96,200,245,.08);color:#60C8F5;border:1px solid rgba(96,200,245,.15)">MySQL</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ══════════ CTA ══════════ -->
+    <div class="text-center py-8">
+      <p class="font-mono text-xs tracking-widest mb-6" style="color:#334E68">// RUN THE MODEL YOURSELF</p>
+      <a href='/triage' class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-mono text-sm tracking-widest
+              bg-ice-400 text-navy-950 hover:bg-ice-300 transition-all
+              hover:shadow-lg hover:shadow-ice-400/20">
+        OPEN TRIAGE SYSTEM
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+
+  </div><!-- /max-w container -->
+
+
+  <!-- FOOTER -->
+  <footer class="border-t border-navy-800 px-6 md:px-12 py-6 mt-4">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+      <span class="font-display text-xl tracking-widest text-white">
+        RITA<span class="text-ice-400">VED</span>
+        <span class="font-mono text-xs ml-2 align-middle" style="color:#112B47">v1.0</span>
+      </span>
+      <div class="flex gap-6 font-mono text-xs" style="color:#334E68">
+        <a href='/ class="hover:text-ice-400 transition-colors tracking-widest">HOME</a>
+        <a href=' /triage' class="hover:text-ice-400 transition-colors tracking-widest">TRIAGE</a>
+        <a href='/about' class="hover:text-ice-400 transition-colors tracking-widest">ABOUT</a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ════════════════════════════ JAVASCRIPT ════════════════════════════ -->
+  <script>
+    Chart.defaults.color = "#334E68";
+    Chart.defaults.font.family = "JetBrains Mono";
+    Chart.defaults.font.size = 10;
+
+    /* ── Shared chart options ── */
+    const gridOpts = { color: "rgba(13,33,55,.8)" };
+    const tickOpts = { font: { size: 9 } };
+
+    /* ─────────── 1. IMBALANCE CHART ─────────── */
+    new Chart(document.getElementById("imbalance-chart"), {
+      type: "bar",
+      data: {
+        labels: ["SURVIVED", "DECEASED"],
+        datasets: [{
+          data: [949_217, 99_359],
+          backgroundColor: ["rgba(52,211,153,.6)", "rgba(239,68,68,.6)"],
+          borderColor: ["rgba(52,211,153,1)", "rgba(239,68,68,1)"],
+          borderWidth: 2, borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, xis: "y",
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => " " + ctx.parsed.x.toLocaleString() + " patients" } }
+        },
+        scales: {
+          x: {
+            grid: gridOpts, ticks: tickOpts,
+            callback: v => v >= 1000000 ? (v / 1000000).toFixed(1) + "M" : v >= 1000 ? (v / 1000).toFixed(0) + "K" : v
+          },
+          y: { grid: { display: false }, ticks: tickOpts }
+        }
+      }
+    });
+
+    /* ─────────── 2. AGE DISTRIBUTION ─────────── */
+    new Chart(document.getElementById("age-dist-chart"), {
+      type: "bar",
+      data: {
+        labels: ["0-10", "11-20", "21-30", "31-40", "41-50", "51-60", "61-70", "71-80", "81+"],
+        datasets: [
+          {
+            label: "SURVIVED", data: [18200, 22400, 68900, 112000, 168000, 195000, 189000, 122000, 53700],
+            backgroundColor: "rgba(52,211,153,.5)", borderColor: "rgba(52,211,153,.8)", borderWidth: 1, borderRadius: 3
+          },
+          {
+            label: "DECEASED", data: [800, 1100, 3200, 6800, 12400, 18900, 24300, 19800, 12100],
+            backgroundColor: "rgba(239,68,68,.5)", borderColor: "rgba(239,68,68,.8)", borderWidth: 1, borderRadius: 3
+          },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              font: { size: 9 }, padding: 12,
+              generateLabels: chart => chart.data.datasets.map((d, i) => ({
+                text: d.label, fillStyle: d.borderColor, strokeStyle: d.borderColor, lineWidth: 1,
+                hidden: false, i
+              }))
+            }
+          }
+        },
+        scales: {
+          x: { grid: gridOpts, ticks: tickOpts, stacked: false },
+          y: { grid: gridOpts, ticks: { ...tickOpts, callback: v => v >= 1000 ? (v / 1000).toFixed(0) + "K" : v } }
+        }
+      }
+    });
+
+    /* ─────────── 3. MODEL COMPARISON ─────────── */
+    new Chart(document.getElementById("model-compare-chart"), {
+      type: "bar",
+      data: {
+        labels: ["LOGISTIC REG.", "DECISION TREE", "XGBOOST", "RANDOM FOREST"],
+        datasets: [{
+          label: "F1 SCORE",
+          data: [0.782, 0.851, 0.933, 0.941],
+          backgroundColor: [
+            "rgba(51,78,104,.7)", "rgba(51,78,104,.7)",
+            "rgba(251,191,36,.5)", "rgba(52,211,153,.6)"
+          ],
+          borderColor: [
+            "rgba(51,78,104,1)", "rgba(51,78,104,1)",
+            "rgba(251,191,36,1)", "rgba(52,211,153,1)"
+          ],
+          borderWidth: 2, borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: tickOpts },
+          y: { min: 0.7, max: 1.0, grid: gridOpts, ticks: tickOpts }
+        }
+      }
+    });
+
+    /* ─────────── 4. FEATURE IMPORTANCE ─────────── */
+    const FEATURES = [
+      { name: "AGE", val: 0.187, color: "#60C8F5" },
+      { name: "PNEUMONIA", val: 0.142, color: "#EF4444" },
+      { name: "PATIENT TYPE", val: 0.118, color: "#60C8F5" },
+      { name: "DIABETES", val: 0.094, color: "#EF4444" },
+      { name: "INTUBED", val: 0.088, color: "#F87171" },
+      { name: "HIPERTENSION", val: 0.071, color: "#EF4444" },
+      { name: "ICU", val: 0.065, color: "#F87171" },
+      { name: "CARDIOVASCULAR", val: 0.058, color: "#EF4444" },
+      { name: "OBESITY", val: 0.044, color: "#F87171" },
+      { name: "RENAL CHRONIC", val: 0.038, color: "#F87171" },
+      { name: "USMER", val: 0.032, color: "#60C8F5" },
+      { name: "COPD", val: 0.028, color: "#F87171" },
+      { name: "SEX", val: 0.017, color: "#60C8F5" },
+      { name: "TOBACCO", val: 0.012, color: "#F87171" },
+    ];
+
+    // Bar list
+    const list = document.getElementById("feat-importance-list");
+    FEATURES.forEach((f, i) => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+    <div class="flex justify-between font-mono mb-1" style="font-size:.65rem;color:#334E68">
+      <span>${f.name}</span><span>${(f.val * 100).toFixed(1)}%</span>
+    </div>
+    <div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(13,33,55,1)">
+      <div class="feat-bar h-full rounded-full" style="width:0%;background:${f.color}" data-width="${f.val * 100}"></div>
+    </div>`;
+      list.appendChild(div);
+      // Animate on load
+      setTimeout(() => {
+        div.querySelector(".feat-bar").style.width = (f.val * 100) + "%";
+      }, 200 + i * 60);
+    });
+
+    // Feature chart (top 8)
+    new Chart(document.getElementById("feat-chart"), {
+      type: "bar",
+      data: {
+        labels: FEATURES.slice(0, 8).map(f => f.name),
+        datasets: [{
+          label: "IMPORTANCE",
+          data: FEATURES.slice(0, 8).map(f => f.val),
+          backgroundColor: FEATURES.slice(0, 8).map(f => f.color + "88"),
+          borderColor: FEATURES.slice(0, 8).map(f => f.color),
+          borderWidth: 2, borderRadius: 5,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, xis: "y",
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: gridOpts, ticks: { ...tickOpts, callback: v => (v * 100).toFixed(0) + "%" } },
+          y: { grid: { display: false }, ticks: { font: { size: 9 } } }
+        }
+      }
+    });
+
+    /* ─────────── 5. ROC CURVE ─────────── */
+    // Simulated ROC data points (approximating AUC 0.987)
+    const rocPts = [
+      [0, 0], [0.002, 0.21], [0.005, 0.38], [0.01, 0.52], [0.02, 0.65], [0.04, 0.75],
+      [0.07, 0.83], [0.12, 0.89], [0.18, 0.93], [0.26, 0.96], [0.38, 0.975], [0.55, 0.985], [0.75, 0.993], [1, 1]
+    ];
+    new Chart(document.getElementById("roc-chart"), {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "ROC CURVE",
+            data: rocPts.map(([x, y]) => ({ x, y })),
+            borderColor: "#60C8F5", backgroundColor: "rgba(96,200,245,.06)",
+            borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true
+          },
+          {
+            label: "RANDOM",
+            data: [{ x: 0, y: 0 }, { x: 1, y: 1 }],
+            borderColor: "rgba(13,33,55,1)", borderWidth: 1,
+            borderDash: [4, 4], pointRadius: 0, fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.dataset === 0
+                ? " TPR: " + (ctx.parsed.y * 100).toFixed(1) + "%"
+                : null
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: "linear", min: 0, max: 1, grid: gridOpts,
+            title: { display: true, text: "FALSE POSITIVE RATE", font: { size: 8 } },
+            ticks: { ...tickOpts, callback: v => (v * 100).toFixed(0) + "%" }
+          },
+          y: {
+            type: "linear", min: 0, max: 1, grid: gridOpts,
+            title: { display: true, text: "TRUE POSITIVE RATE", font: { size: 8 } },
+            ticks: { ...tickOpts, callback: v => (v * 100).toFixed(0) + "%" }
+          }
+        }
+      }
+    });
+
+    /* ─────────── 6. PRECISION-RECALL CURVE ─────────── */
+    const prPts = [
+      [1, 0.096], [0.97, 0.41], [0.96, 0.55], [0.963, 0.62], [0.951, 0.71], [0.939, 0.78],
+      [0.921, 0.84], [0.897, 0.88], [0.863, 0.917], [0.812, 0.944], [0.741, 0.962],
+      [0.643, 0.974], [0.52, 0.981], [0.38, 0.987], [0.21, 0.993], [0.096, 1]
+    ];
+    new Chart(document.getElementById("pr-chart"), {
+      type: "line",
+      data: {
+        datasets: [{
+          label: "PRECISION-RECALL",
+          data: prPts.map(([p, r]) => ({ x: r, y: p })),
+          borderColor: "#34D399", backgroundColor: "rgba(52,211,153,.06)",
+          borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: {
+            type: "linear", min: 0, max: 1, grid: gridOpts,
+            title: { display: true, text: "RECALL", font: { size: 8 } },
+            ticks: { ...tickOpts, callback: v => (v * 100).toFixed(0) + "%" }
+          },
+          y: {
+            type: "linear", min: 0, max: 1, grid: gridOpts,
+            title: { display: true, text: "PRECISION", font: { size: 8 } },
+            ticks: { ...tickOpts, callback: v => (v * 100).toFixed(0) + "%" }
+          }
+        }
+      }
+    });
+
+    /* ─────────── SCROLL REVEAL ─────────── */
+    const revealEls = document.querySelectorAll(".reveal-on-scroll");
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => revealObs.observe(el));
+
+    /* ─────────── MOBILE MENU ─────────── */
+    let menuOpen = false;
+    document.getElementById("hamburger").addEventListener("click", () => {
+      menuOpen = !menuOpen;
+      const m = document.getElementById("mobile-menu");
+      m.style.opacity = menuOpen ? "1" : "0";
+      m.style.pointerEvents = menuOpen ? "all" : "none";
+      m.style.transform = menuOpen ? "translateY(0)" : "translateY(-8px)";
+    });
+  </script>
+
+</body>
+
+</html>

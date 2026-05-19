@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ritaved — COVID-19 Clinical Risk Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!--
+    Typography choices:
+    - "Bebas Neue"      → bold display / hero headlines (condensed, authoritative)
+    - "Crimson Pro"     → editorial body text (clinical gravitas)
+    - "JetBrains Mono"  → data / numbers / tags (technical precision)
+  -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Bebas Neue", "sans-serif"],
+            body: ["Crimson Pro", "Georgia", "serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
+          colors: {
+            navy: { 950: "#020B18", 900: "#05121F", 800: "#091929", 700: "#0D2137", 600: "#112B47" },
+            ice: { 400: "#60C8F5", 300: "#93D9F8", 200: "#C6ECFC" },
+            alert: { 600: "#DC2626", 500: "#EF4444", 400: "#F87171" },
+            sage: { 400: "#34D399", 500: "#10B981" },
+          },
+          animation: {
+            "fade-up": "fadeUp .6s ease forwards",
+            "fade-in": "fadeIn .5s ease forwards",
+            "line-grow": "lineGrow 1.2s ease forwards",
+            "counter": "counter 2s ease forwards",
+            "pulse-slow": "pulse 3s cubic-bezier(0.4,0,0.6,1) infinite",
+            "scan": "scan 3s linear infinite",
+          },
+          keyframes: {
+            fadeUp: { "0%": { opacity: "0", transform: "translateY(20px)" }, "100%": { opacity: "1", transform: "translateY(0)" } },
+            fadeIn: { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
+            lineGrow: { "0%": { width: "0%" }, "100%": { width: "100%" } },
+            scan: { "0%": { top: "-2px" }, "100%": { top: "100%" } },
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ── Reset & base ── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    html {
+      font-family: "Crimson Pro", Georgia, serif;
+    }
+
+    body {
+      background: #020B18;
+      color: #E2E8F0;
+      overflow-x: hidden;
+    }
+
+    /* ── Grid texture background ── */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(96, 200, 245, .04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96, 200, 245, .04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* ── Noise overlay ── */
+    .noise::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: .5;
+      z-index: 0;
+    }
+
+    /* ── Radial hero glow ── */
+    .hero-glow {
+      background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(17, 43, 71, .9) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 30%, rgba(96, 200, 245, .06) 0%, transparent 60%);
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #020B18;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #0D2137;
+      border-radius: 2px;
+    }
+
+    /* ── Stagger utility ── */
+    .stagger>* {
+      opacity: 0;
+      animation: fadeUp .6s ease forwards;
+    }
+
+    .stagger>*:nth-child(1) {
+      animation-delay: .1s;
+    }
+
+    .stagger>*:nth-child(2) {
+      animation-delay: .25s;
+    }
+
+    .stagger>*:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    .stagger>*:nth-child(4) {
+      animation-delay: .55s;
+    }
+
+    .stagger>*:nth-child(5) {
+      animation-delay: .7s;
+    }
+
+    /* ── Nav link ── */
+    .nav-link {
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 1px;
+      width: 0;
+      background: #60C8F5;
+      transition: width .25s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    /* ── Card hover ── */
+    .card-lift {
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .card-lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, .5);
+    }
+
+    /* ── Stat counter ── */
+    .stat-num {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Scan line ── */
+    .scan-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      z-index: 2;
+      background: linear-gradient(90deg, transparent, rgba(96, 200, 245, .5), transparent);
+      animation: scan 3s linear infinite;
+    }
+
+    /* ── Tech pill ── */
+    .tech-pill {
+      border: 1px solid rgba(96, 200, 245, .2);
+      background: rgba(96, 200, 245, .05);
+      backdrop-filter: blur(4px);
+      transition: border-color .2s, background .2s;
+    }
+
+    .tech-pill:hover {
+      border-color: rgba(96, 200, 245, .5);
+      background: rgba(96, 200, 245, .1);
+    }
+
+    /* ── Divider line ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96, 200, 245, .3), transparent);
+    }
+
+    /* ── Mobile menu ── */
+    #mobile-menu {
+      transition: opacity .3s ease, transform .3s ease;
+    }
+
+    #mobile-menu.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-8px);
+    }
+
+    #mobile-menu.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0);
+    }
+
+    /* ── ECG line (SVG decoration) ── */
+    .ecg-path {
+      stroke-dasharray: 800;
+      stroke-dashoffset: 800;
+      animation: ecgDraw 3s ease forwards .8s;
+    }
+
+    @keyframes ecgDraw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+  </style>
+</head>
+
+<body class="font-body antialiased">
+
+  <!-- ════════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════ -->
+  <nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300 py-4 px-6 md:px-12
+            flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href='/index' class="flex items-center gap-3 group">
+      <div class="w-9 h-9 rounded-lg bg-ice-400/10 border border-ice-400/30
+                flex items-center justify-center
+                group-hover:bg-ice-400/20 transition-colors">
+        <svg class="w-5 h-5 text-ice-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935
+                 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1
+                 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+      </div>
+      <span class="font-display text-2xl tracking-widest text-white">
+        RITA<span class="text-ice-400">VED</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-8 text-sm font-body text-slate-400">
+      <a href='/index' class="nav-link active text-white hover:text-ice-400 transition-colors">Home</a>
+      <a href='/triage' class="nav-link hover:text-ice-400 transition-colors">Triage</a>
+      <a href='/analytics' class="nav-link hover:text-ice-400 transition-colors">Analytics</a>
+      <a href='/about' class="nav-link hover:text-ice-400 transition-colors">About</a>
+    </div>
+
+    <!-- CTA -->
+    <a href='/triage' class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg
+            bg-ice-400 text-navy-950 font-mono text-xs font-medium tracking-wide
+            hover:bg-ice-300 transition-colors">
+      <span class="w-1.5 h-1.5 rounded-full bg-navy-950 animate-pulse"></span>
+      OPEN TRIAGE
+    </a>
+
+    <!-- Mobile hamburger -->
+    <button id="hamburger" class="md:hidden text-slate-400 hover:text-white transition-colors" aria-label="Menu">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden fixed inset-x-0 top-[64px] z-40 bg-navy-900/95 backdrop-blur-xl
+            border-b border-navy-700 px-6 py-6 flex flex-col gap-5 text-sm">
+    <a href='/index' class="text-white font-mono tracking-wide">HOME</a>
+    <a href='/triage' class="text-slate-400 hover:text-ice-400 font-mono tracking-wide transition-colors">TRIAGE</a>
+    <a href='/analytics'
+      class="text-slate-400 hover:text-ice-400 font-mono tracking-wide transition-colors">ANALYTICS</a>
+    <a href='/about' class="text-slate-400 hover:text-ice-400 font-mono tracking-wide transition-colors">ABOUT</a>
+    <a href='/triage' class="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg
+            bg-ice-400 text-navy-950 font-mono text-xs font-medium tracking-widest">
+      OPEN TRIAGE SYSTEM
+    </a>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     HERO SECTION
+════════════════════════════════════════════════════════ -->
+  <section class="relative min-h-screen grid-bg hero-glow noise flex items-center overflow-hidden pt-20">
+
+    <!-- Background ECG decoration -->
+    <div class="absolute inset-0 flex items-center pointer-events-none opacity-10">
+      <svg class="w-full" viewBox="0 0 1200 200" fill="none" xmlns="http://www.w3.org/2000/svg"
+        preserveAspectRatio="none">
+        <polyline class="ecg-path" stroke="#60C8F5" stroke-width="1.5" points="0,100 100,100 140,100 160,20 180,180 200,100 220,100 260,100
+                300,100 340,100 360,20 380,180 400,100 420,100 460,100
+                500,100 540,100 560,20 580,180 600,100 620,100 660,100
+                700,100 740,100 760,20 780,180 800,100 820,100 860,100
+                900,100 940,100 960,20 980,180 1000,100 1020,100 1060,100 1200,100" />
+      </svg>
+    </div>
+
+    <!-- Decorative blobs -->
+    <div class="absolute top-1/4 right-0 w-[500px] h-[500px] rounded-full
+              bg-ice-400/5 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 left-1/4 w-64 h-64 rounded-full
+              bg-alert-600/5 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full py-24">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <!-- Left: headline -->
+        <div class="stagger">
+          <!-- Status pill -->
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                    border border-alert-500/40 bg-alert-500/10
+                    font-mono text-xs text-alert-400 tracking-widest mb-8">
+            <span class="w-1.5 h-1.5 rounded-full bg-alert-400 animate-pulse"></span>
+            COVID-19 MORTALITY INTELLIGENCE SYSTEM
+          </div>
+
+          <h1 class="font-display text-[80px] md:text-[100px] lg:text-[120px]
+                   leading-none tracking-widest text-white mb-0">
+            RITA
+          </h1>
+          <h1 class="font-display text-[80px] md:text-[100px] lg:text-[120px]
+                   leading-none tracking-widest text-ice-400 mb-6">
+            VED
+          </h1>
+
+          <!-- Accent line -->
+          <div class="h-[2px] w-24 bg-gradient-to-r from-ice-400 to-alert-500 mb-8 rounded-full"></div>
+
+          <p class="font-body text-xl text-slate-300 leading-relaxed max-w-lg mb-10" style="font-style:italic;">
+            A machine-learning clinical decision support system that predicts
+            ICU admission risk and mortality probability for COVID-19 patients
+            — trained on <strong class="text-white not-italic">1,048,576 real patient records</strong>
+            from the Mexican Ministry of Health.
+          </p>
+
+          <!-- CTA row -->
+          <div class="flex flex-wrap gap-4">
+            <a href='/triage' class="group inline-flex items-center gap-3 px-6 py-3.5 rounded-xl
+                    bg-ice-400 text-navy-950 font-mono text-sm font-medium tracking-wide
+                    hover:bg-ice-300 transition-all hover:shadow-lg hover:shadow-ice-400/20">
+              Launch Triage System
+              <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+            <a href='/analytics' class="inline-flex items-center gap-3 px-6 py-3.5 rounded-xl
+                    border border-navy-600 text-slate-300
+                    hover:border-ice-400/40 hover:text-ice-400 transition-all font-mono text-sm">
+              View Analytics
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: live mock card -->
+        <div class="relative hidden lg:flex justify-center">
+
+          <!-- Outer glow -->
+          <div class="absolute inset-0 rounded-3xl bg-ice-400/5 blur-2xl"></div>
+
+          <!-- Card -->
+          <div class="relative w-full max-w-sm scan-wrap rounded-2xl border border-navy-600
+                    bg-navy-900/80 backdrop-blur-sm p-6">
+            <div class="scan-line"></div>
+
+            <!-- Card header -->
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <p class="font-mono text-xs text-slate-500 tracking-widest">PATIENT RECORD</p>
+                <p class="font-mono text-xs text-ice-400 mt-0.5">#RTV-2024-08847</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-md font-mono text-xs
+                         bg-alert-500/15 text-alert-400 border border-alert-500/30 animate-pulse-slow">
+                ● CRITICAL
+              </span>
+            </div>
+
+            <!-- Patient vitals grid -->
+            <div class="grid grid-cols-2 gap-3 mb-5">
+              <div class="bg-navy-800/60 rounded-xl p-3 border border-navy-700">
+                <p class="font-mono text-xs text-slate-500 mb-1">AGE</p>
+                <p class="font-display text-2xl text-white tracking-widest">67</p>
+              </div>
+              <div class="bg-navy-800/60 rounded-xl p-3 border border-navy-700">
+                <p class="font-mono text-xs text-slate-500 mb-1">SEX</p>
+                <p class="font-display text-2xl text-white tracking-widest">M</p>
+              </div>
+            </div>
+
+            <!-- Condition flags -->
+            <div class="space-y-2 mb-5">
+              <p class="font-mono text-xs text-slate-500 tracking-widest mb-2">FLAGGED CONDITIONS</p>
+              <div class="flex flex-wrap gap-1.5">
+                <span
+                  class="px-2 py-0.5 rounded font-mono text-xs bg-alert-500/15 text-alert-400 border border-alert-500/20">DIABETES</span>
+                <span
+                  class="px-2 py-0.5 rounded font-mono text-xs bg-alert-500/15 text-alert-400 border border-alert-500/20">PNEUMONIA</span>
+                <span
+                  class="px-2 py-0.5 rounded font-mono text-xs bg-alert-500/15 text-alert-400 border border-alert-500/20">HIPERTENSION</span>
+                <span
+                  class="px-2 py-0.5 rounded font-mono text-xs bg-alert-500/15 text-alert-400 border border-alert-500/20">OBESITY</span>
+                <span
+                  class="px-2 py-0.5 rounded font-mono text-xs bg-alert-500/15 text-alert-400 border border-alert-500/20">CARDIOVASCULAR</span>
+              </div>
+            </div>
+
+            <!-- Risk gauge bar -->
+            <div class="mb-4">
+              <div class="flex justify-between mb-1.5">
+                <span class="font-mono text-xs text-slate-500">MORTALITY RISK</span>
+                <span class="font-mono text-xs text-alert-400 font-medium">85 / 100</span>
+              </div>
+              <div class="h-2 rounded-full bg-navy-700 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-alert-500" style="width:85%"></div>
+              </div>
+            </div>
+
+            <!-- Model confidence -->
+            <div class="flex items-center justify-between pt-4 border-t border-navy-700">
+              <span class="font-mono text-xs text-slate-500">MODEL CONFIDENCE</span>
+              <span class="font-mono text-xs text-ice-400">94.2%</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Bottom fade -->
+    <div class="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-navy-950 to-transparent pointer-events-none">
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     STATS ROW
+════════════════════════════════════════════════════════ -->
+  <section class="bg-navy-900 border-y border-navy-700">
+    <div class="max-w-7xl mx-auto px-6 md:px-12 py-10
+              grid grid-cols-2 md:grid-cols-4 gap-8">
+
+      <div class="text-center">
+        <p class="font-display text-4xl md:text-5xl text-white stat-num" data-target="1048576">0</p>
+        <p class="font-mono text-xs text-slate-500 mt-2 tracking-widest">PATIENT RECORDS</p>
+      </div>
+      <div class="text-center">
+        <p class="font-display text-4xl md:text-5xl text-alert-400 stat-num" data-target="21">0</p>
+        <p class="font-mono text-xs text-slate-500 mt-2 tracking-widest">CLINICAL FEATURES</p>
+      </div>
+      <div class="text-center">
+        <p class="font-display text-4xl md:text-5xl text-ice-400">99.1<span class="text-2xl">%</span></p>
+        <p class="font-mono text-xs text-slate-500 mt-2 tracking-widest">MODEL ACCURACY</p>
+      </div>
+      <div class="text-center">
+        <p class="font-display text-4xl md:text-5xl text-sage-400">&lt;1<span class="text-2xl">s</span></p>
+        <p class="font-mono text-xs text-slate-500 mt-2 tracking-widest">INFERENCE TIME</p>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     OVERVIEW — What Ritaved Does
+════════════════════════════════════════════════════════ -->
+  <section class="py-28 px-6 md:px-12 bg-navy-950">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="grid lg:grid-cols-2 gap-16 items-start">
+
+        <!-- Left: text -->
+        <div>
+          <p class="font-mono text-xs text-ice-400 tracking-widest mb-4">// SYSTEM OVERVIEW</p>
+          <h2 class="font-display text-5xl md:text-6xl text-white tracking-widest mb-6 leading-tight">
+            CLINICAL<br />INTELLIGENCE<br />
+            <span class="text-ice-400">AT SCALE</span>
+          </h2>
+          <div class="divider mb-8"></div>
+          <div class="space-y-5 font-body text-lg text-slate-400 leading-relaxed">
+            <p>
+              Ritaved is a <em class="text-slate-200">real-time clinical decision support engine</em>
+              built on a Random Forest machine learning model. It ingests a COVID-19 patient's
+              demographic data and pre-existing comorbidities, then generates a precise
+              mortality and ICU admission risk score within milliseconds.
+            </p>
+            <p>
+              Unlike broad population studies, Ritaved operates at the
+              <strong class="text-slate-200">individual patient level</strong> — giving emergency
+              physicians and triage nurses an objective, data-driven second opinion precisely
+              when time is most critical.
+            </p>
+            <p>
+              The underlying dataset was sourced from the
+              <strong class="text-slate-200">Mexican Secretariat of Health (SSA)</strong>,
+              encompassing over one million confirmed COVID-19 cases with complete
+              clinical outcome records.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: feature cards -->
+        <div class="space-y-4">
+
+          <div class="card-lift rounded-2xl border border-navy-700 bg-navy-900 p-6 flex gap-5">
+            <div class="w-12 h-12 rounded-xl bg-ice-400/10 border border-ice-400/20
+                      flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-ice-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display text-xl tracking-widest text-white mb-2">INSTANT TRIAGE</h3>
+              <p class="font-body text-slate-400 leading-relaxed">
+                Submit a patient's vitals and comorbidities via the intake form. The
+                Random Forest model returns a risk score and STABLE / CRITICAL verdict
+                in under one second.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-lift rounded-2xl border border-navy-700 bg-navy-900 p-6 flex gap-5">
+            <div class="w-12 h-12 rounded-xl bg-alert-500/10 border border-alert-500/20
+                      flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-alert-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5
+                       M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301
+                       24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591
+                       L19.8 15.3M14.25 3.104c.251.023.501.05.75.082" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display text-xl tracking-widest text-white mb-2">14 COMORBIDITIES</h3>
+              <p class="font-body text-slate-400 leading-relaxed">
+                The model analyses pneumonia, diabetes, COPD, hypertension, cardiovascular
+                disease, obesity, and 8 additional clinical risk factors simultaneously.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-lift rounded-2xl border border-navy-700 bg-navy-900 p-6 flex gap-5">
+            <div class="w-12 h-12 rounded-xl bg-sage-400/10 border border-sage-400/20
+                      flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-sage-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9
+                       M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0
+                       0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-display text-xl tracking-widest text-white mb-2">FULL ANALYTICS</h3>
+              <p class="font-body text-slate-400 leading-relaxed">
+                EDA charts, confusion matrices, ROC curves, and feature importance
+                rankings are all documented in the Analytics page for full transparency.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     TECH STACK
+════════════════════════════════════════════════════════ -->
+  <section class="py-24 px-6 md:px-12 bg-navy-900 border-t border-navy-700">
+    <div class="max-w-7xl mx-auto">
+
+      <p class="font-mono text-xs text-ice-400 tracking-widest mb-4">// TECHNOLOGY STACK</p>
+      <h2 class="font-display text-5xl text-white tracking-widest mb-12 leading-tight">
+        BUILT WITH<br /><span class="text-ice-400">PRECISION</span>
+      </h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+        <!-- Stack items -->
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">🐍</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">Python 3.11</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            Core language. Data processing pipelines, model training, and Flask API server.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">🌲</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">Scikit-learn</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            Random Forest classifier. GridSearchCV hyperparameter tuning. SMOTE oversampling.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">🐼</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">Pandas / NumPy</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            Dataset cleaning, missing value imputation, feature engineering, and EDA.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">🗄️</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">MySQL</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            Persistent storage for patient records, prediction logs, and audit trails.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">⚗️</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">Flask</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            Lightweight Python web framework exposing the ML model via a REST API endpoint.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">📊</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">Matplotlib / Seaborn</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            EDA visualisations: class distribution, feature correlation, ROC curve.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">🎨</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">Tailwind CSS</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            Utility-first CSS framework powering this responsive clinical interface.
+          </p>
+        </div>
+
+        <div class="tech-pill rounded-2xl p-6 card-lift">
+          <div class="text-3xl mb-4">📦</div>
+          <h3 class="font-mono text-sm text-ice-400 mb-2 tracking-wide">SSA Dataset</h3>
+          <p class="font-body text-slate-400 text-sm leading-relaxed">
+            1M+ COVID-19 patient records from Mexico's Secretariat of Health. Open data.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     HOW IT WORKS — Pipeline steps
+════════════════════════════════════════════════════════ -->
+  <section class="py-28 px-6 md:px-12 bg-navy-950">
+    <div class="max-w-7xl mx-auto">
+
+      <p class="font-mono text-xs text-ice-400 tracking-widest mb-4">// PIPELINE</p>
+      <h2 class="font-display text-5xl text-white tracking-widest mb-16">
+        HOW IT<br /><span class="text-ice-400">WORKS</span>
+      </h2>
+
+      <!-- Steps -->
+      <div class="relative">
+        <!-- Connecting line (desktop) -->
+        <div class="hidden md:block absolute top-8 left-0 right-0 h-[1px]
+                  bg-gradient-to-r from-transparent via-navy-600 to-transparent"></div>
+
+        <div class="grid md:grid-cols-4 gap-8">
+
+          <div class="relative">
+            <div class="w-16 h-16 rounded-2xl bg-navy-900 border border-navy-700
+                      flex items-center justify-center mb-6 relative z-10">
+              <span class="font-display text-3xl text-ice-400 tracking-widest">01</span>
+            </div>
+            <h3 class="font-display text-xl text-white tracking-widest mb-3">INTAKE</h3>
+            <p class="font-body text-slate-400 leading-relaxed">
+              Clinician submits patient age, sex, institution type, and all 14 comorbidity flags
+              via the Triage Form.
+            </p>
+          </div>
+
+          <div class="relative">
+            <div class="w-16 h-16 rounded-2xl bg-navy-900 border border-navy-700
+                      flex items-center justify-center mb-6 relative z-10">
+              <span class="font-display text-3xl text-ice-400 tracking-widest">02</span>
+            </div>
+            <h3 class="font-display text-xl text-white tracking-widest mb-3">NORMALISE</h3>
+            <p class="font-body text-slate-400 leading-relaxed">
+              The Flask API preprocesses the payload — encoding categoricals,
+              handling missing values, and scaling features to match training distribution.
+            </p>
+          </div>
+
+          <div class="relative">
+            <div class="w-16 h-16 rounded-2xl bg-navy-900 border border-navy-700
+                      flex items-center justify-center mb-6 relative z-10">
+              <span class="font-display text-3xl text-ice-400 tracking-widest">03</span>
+            </div>
+            <h3 class="font-display text-xl text-white tracking-widest mb-3">INFER</h3>
+            <p class="font-body text-slate-400 leading-relaxed">
+              The trained Random Forest model runs inference across 500 decision trees,
+              returning a mortality probability score from 0 to 1.
+            </p>
+          </div>
+
+          <div class="relative">
+            <div class="w-16 h-16 rounded-2xl bg-navy-900 border border-navy-700
+                      flex items-center justify-center mb-6 relative z-10">
+              <span class="font-display text-3xl text-alert-400 tracking-widest">04</span>
+            </div>
+            <h3 class="font-display text-xl text-white tracking-widest mb-3">VERDICT</h3>
+            <p class="font-body text-slate-400 leading-relaxed">
+              The dashboard instantly displays STABLE (green) or CRITICAL (red), along
+              with the exact probability and a clinical recommendation.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     FINAL CTA
+════════════════════════════════════════════════════════ -->
+  <section class="py-32 px-6 text-center relative overflow-hidden bg-navy-900 border-t border-navy-700">
+    <div class="absolute inset-0 grid-bg opacity-50 pointer-events-none"></div>
+    <div class="absolute inset-0 pointer-events-none"
+      style="background:radial-gradient(ellipse 60% 60% at 50% 50%, rgba(96,200,245,.06) 0%, transparent 70%)"></div>
+    <div class="relative z-10 max-w-3xl mx-auto">
+      <p class="font-mono text-xs text-ice-400 tracking-widest mb-6">// BEGIN TRIAGE</p>
+      <h2 class="font-display text-6xl md:text-7xl text-white tracking-widest mb-8 leading-none">
+        READY TO<br /><span class="text-ice-400">ASSESS?</span>
+      </h2>
+      <p class="font-body text-xl text-slate-400 italic mb-10 max-w-lg mx-auto">
+        Open the triage system, enter your patient's clinical data, and receive
+        an AI-generated risk verdict in under a second.
+      </p>
+      <a href='/triage' class="group inline-flex items-center gap-3 px-8 py-4 rounded-xl
+              bg-ice-400 text-navy-950 font-mono font-medium tracking-widest
+              hover:bg-ice-300 transition-all hover:shadow-2xl hover:shadow-ice-400/20 text-sm">
+        OPEN TRIAGE SYSTEM
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════ -->
+  <footer class="bg-navy-950 border-t border-navy-800 px-6 md:px-12 py-8">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="font-display text-xl tracking-widest text-white">
+          RITA<span class="text-ice-400">VED</span>
+        </span>
+        <span class="font-mono text-xs text-slate-600">v1.0 · Academy Final Project</span>
+      </div>
+      <div class="flex gap-6 font-mono text-xs text-slate-500">
+        <a href='/index' class="hover:text-ice-400 transition-colors tracking-wide">HOME</a>
+        <a href='/triage' class="hover:text-ice-400 transition-colors tracking-wide">TRIAGE</a>
+        <a href='/analytics' class="hover:text-ice-400 transition-colors tracking-wide">ANALYTICS</a>
+        <a href='/about' class="hover:text-ice-400 transition-colors tracking-wide">ABOUT</a>
+      </div>
+      <p class="font-mono text-xs text-slate-600">&copy; 2025 Ritaved</p>
+    </div>
+  </footer>
+
+
+  <!-- ════════════════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════════════════ -->
+  <script>
+    /* ── Navbar scroll effect ── */
+    const navbar = document.getElementById("navbar");
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 40) {
+        navbar.style.background = "rgba(2,11,24,0.96)";
+        navbar.style.backdropFilter = "blur(16px)";
+        navbar.style.borderBottom = "1px solid rgba(13,33,55,.8)";
+        navbar.style.paddingTop = "0.75rem";
+        navbar.style.paddingBottom = "0.75rem";
+      } else {
+        navbar.style.background = "transparent";
+        navbar.style.backdropFilter = "none";
+        navbar.style.borderBottom = "none";
+        navbar.style.paddingTop = "1rem";
+        navbar.style.paddingBottom = "1rem";
+      }
+    });
+
+    /* ── Mobile hamburger ── */
+    const hamburger = document.getElementById("hamburger");
+    const mobileMenu = document.getElementById("mobile-menu");
+    let menuOpen = false;
+
+    hamburger.addEventListener("click", () => {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileMenu.classList.remove("hidden");
+        setTimeout(() => mobileMenu.classList.add("open"), 10);
+      } else {
+        mobileMenu.classList.remove("open");
+        setTimeout(() => mobileMenu.classList.add("hidden"), 300);
+      }
+    });
+
+    /* ── Animated stat counters ── */
+    const counters = document.querySelectorAll(".stat-num[data-target]");
+    const formatNum = n => n >= 1000000
+      ? (n / 1000000).toFixed(1) + "M"
+      : n >= 1000 ? n.toLocaleString()
+        : n.toString();
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = +el.dataset.target;
+        const dur = 2000;
+        const start = performance.now();
+        const tick = (now) => {
+          const p = Math.min((now - start) / dur, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          el.textContent = formatNum(Math.floor(ease * target));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        io.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+
+    counters.forEach(el => io.observe(el));
+  </script>
+
+</body>
+
+</html>

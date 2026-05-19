@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ritaved — About the Developer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["Bebas Neue", "sans-serif"],
+            body: ["Crimson Pro", "Georgia", "serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
+          colors: {
+            navy: { 950: "#020B18", 900: "#05121F", 800: "#091929", 700: "#0D2137", 600: "#112B47", 500: "#1E3A55" },
+            ice: { 400: "#60C8F5", 300: "#93D9F8" },
+            alert: { 500: "#EF4444", 400: "#F87171" },
+            sage: { 400: "#34D399", 500: "#10B981" },
+            amber: { 400: "#FBBF24" },
+          },
+        }
+      }
+    };
+  </script>
+
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    html {
+      font-family: "Crimson Pro", serif;
+    }
+
+    body {
+      background: #020B18;
+      color: #E2E8F0;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── Grid texture ── */
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(96, 200, 245, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(96, 200, 245, .03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #020B18;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #0D2137;
+      border-radius: 2px;
+    }
+
+    /* ── Nav link ── */
+    .nav-link {
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      height: 1px;
+      width: 0;
+      background: #60C8F5;
+      transition: width .25s;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    /* ── Divider ── */
+    .h-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(96, 200, 245, .2), transparent);
+    }
+
+    /* ── Blink ── */
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .blink {
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
+    /* ── Ticker ── */
+    @keyframes tickerScroll {
+      from {
+        transform: translateX(0)
+      }
+
+      to {
+        transform: translateX(-50%)
+      }
+    }
+
+    .ticker-inner {
+      animation: tickerScroll 32s linear infinite;
+      white-space: nowrap;
+    }
+
+    /* ── Avatar ring ── */
+    .avatar-ring {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 2px solid rgba(96, 200, 245, .3);
+      box-shadow: 0 0 0 8px rgba(96, 200, 245, .05), 0 0 48px rgba(96, 200, 245, .08);
+      overflow: hidden;
+      background: rgba(9, 25, 41, .8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    /* ── Skill pill ── */
+    .skill-pill {
+      background: rgba(9, 25, 41, .7);
+      border: 1px solid rgba(13, 33, 55, .9);
+      border-radius: .5rem;
+      padding: .3rem .75rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .72rem;
+      color: #94a3b8;
+      transition: border-color .2s, color .2s, background .2s;
+      cursor: default;
+    }
+
+    .skill-pill:hover {
+      border-color: rgba(96, 200, 245, .35);
+      color: #60C8F5;
+      background: rgba(96, 200, 245, .05);
+    }
+
+    /* ── Project card ── */
+    .proj-card {
+      background: rgba(9, 25, 41, .5);
+      border: 1px solid rgba(13, 33, 55, .9);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+
+    .proj-card:hover {
+      border-color: rgba(96, 200, 245, .25);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .4);
+    }
+
+    /* ── Social link ── */
+    .social-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .625rem;
+      padding: .625rem 1rem;
+      border-radius: .625rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .75rem;
+      border: 1px solid rgba(13, 33, 55, .9);
+      background: rgba(9, 25, 41, .6);
+      color: #94a3b8;
+      letter-spacing: .04em;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+
+    .social-link:hover {
+      border-color: rgba(96, 200, 245, .3);
+      color: #60C8F5;
+      background: rgba(96, 200, 245, .05);
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Terminal block ── */
+    .terminal {
+      background: rgba(4, 11, 20, 1);
+      border: 1px solid rgba(13, 33, 55, 1);
+      border-radius: .875rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .78rem;
+      color: #60C8F5;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2rem;
+      background: rgba(13, 33, 55, .4);
+      border-bottom: 1px solid rgba(13, 33, 55, .8);
+    }
+
+    .terminal-dots {
+      position: absolute;
+      top: .65rem;
+      left: 1rem;
+      display: flex;
+      gap: .4rem;
+    }
+
+    .terminal-dots span {
+      width: .55rem;
+      height: .55rem;
+      border-radius: 50%;
+    }
+
+    .terminal-body {
+      margin-top: 1.75rem;
+      line-height: 1.9;
+    }
+
+    .t-dim {
+      color: #1E3A55;
+    }
+
+    .t-key {
+      color: #FBBF24;
+    }
+
+    .t-val {
+      color: #34D399;
+    }
+
+    .t-str {
+      color: #93D9F8;
+    }
+
+    .t-comment {
+      color: #334E68;
+    }
+
+    /* ── Cursor blink ── */
+    @keyframes cursorBlink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0
+      }
+    }
+
+    .cursor {
+      display: inline-block;
+      width: .5rem;
+      height: 1rem;
+      background: #60C8F5;
+      vertical-align: text-bottom;
+      animation: cursorBlink .9s step-end infinite;
+    }
+
+    /* ── Contact form inputs ── */
+    .rtv-input {
+      width: 100%;
+      background: rgba(9, 25, 41, .8);
+      border: 1px solid rgba(13, 33, 55, 1);
+      border-radius: .625rem;
+      padding: .65rem 1rem;
+      color: #E2E8F0;
+      font-family: "JetBrains Mono", monospace;
+      font-size: .8rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .rtv-input:focus {
+      border-color: #60C8F5;
+      box-shadow: 0 0 0 3px rgba(96, 200, 245, .1);
+    }
+
+    .rtv-input::placeholder {
+      color: #1E3A55;
+    }
+
+    /* ── Mobile menu ── */
+    #mobile-menu {
+      transition: opacity .3s, transform .3s;
+    }
+
+    /* ── Floating orbs ── */
+    @keyframes floatOrb {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-18px)
+      }
+    }
+
+    .orb {
+      animation: floatOrb 6s ease-in-out infinite;
+    }
+
+    .orb2 {
+      animation: floatOrb 8s ease-in-out 2s infinite;
+    }
+
+    .orb3 {
+      animation: floatOrb 7s ease-in-out 4s infinite;
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .spinner {
+      animation: spin .7s linear infinite;
+    }
+
+    /* ── Metric card ── */
+    .metric-card {
+      background: rgba(9, 25, 41, .6);
+      border: 1px solid rgba(13, 33, 55, .9);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      transition: border-color .2s;
+    }
+
+    .metric-card:hover {
+      border-color: rgba(96, 200, 245, .2);
+    }
+  </style>
+</head>
+
+<body class="font-body antialiased">
+
+  <!-- ══════════ NAVBAR ══════════ -->
+  <nav style="background:rgba(2,11,24,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(13,33,55,.7)"
+    class="fixed top-0 inset-x-0 z-50 py-3.5 px-6 md:px-12 flex items-center justify-between">
+
+    <a href='/' class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-ice-400/10 border border-ice-400/30 flex items-center justify-center">
+        <svg class="w-4 h-4 text-ice-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312
+                 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25
+                 c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+      </div>
+      <span class="font-display text-xl tracking-widest text-white">RITA<span class="text-ice-400">VED</span></span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-7 font-mono text-xs text-slate-500 tracking-widest">
+      <a href='/' class="nav-link hover:text-ice-400 transition-colors">HOME</a>
+      <a href='/triage' class="nav-link hover:text-ice-400 transition-colors">TRIAGE</a>
+      <a href='/analytics' class="nav-link hover:text-ice-400 transition-colors">ANALYTICS</a>
+      <a href='/about' class="nav-link active text-ice-400">ABOUT</a>
+    </div>
+
+    <a href='/triage' class="hidden md:inline-flex items-center gap-2 font-mono text-xs text-navy-950
+            bg-ice-400 hover:bg-ice-300 px-3 py-1.5 rounded-lg tracking-widest transition-colors">
+      <span class="w-1.5 h-1.5 rounded-full bg-navy-950 blink"></span>OPEN TRIAGE
+    </a>
+
+    <button id="hamburger" class="md:hidden text-slate-400">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" style="opacity:0;pointer-events:none;transform:translateY(-8px)" class="fixed inset-x-0 top-[60px] z-40 bg-navy-900/96 backdrop-blur-xl border-b border-navy-700
+            px-6 py-5 flex flex-col gap-4 font-mono text-xs tracking-widest">
+    <a href='/' class="text-slate-500 hover:text-ice-400 transition-colors">HOME</a>
+    <a href='/triage' class="text-slate-500 hover:text-ice-400 transition-colors">TRIAGE</a>
+    <a href='/analytics' class="text-slate-500 hover:text-ice-400 transition-colors">ANALYTICS</a>
+    <a href='/about' class="text-ice-400">ABOUT</a>
+  </div>
+
+
+  <!-- ══════════ TICKER ══════════ -->
+  <div class="fixed top-[56px] inset-x-0 z-40 overflow-hidden border-b border-navy-800"
+    style="background:rgba(2,11,24,.95)">
+    <div class="ticker-inner flex items-center gap-12 py-1.5 font-mono text-xs" style="color:#1E3A55">
+      <span class="text-ice-400 flex-shrink-0 px-4">&#9632; DEVELOPER PROFILE</span>
+      <span class="flex-shrink-0">FULL-STACK DEVELOPER &amp; ML ENGINEER</span>
+      <span class="flex-shrink-0 text-sage-400">RITAVED — ACADEMY FINAL PROJECT</span>
+      <span class="flex-shrink-0">PYTHON · FLASK · SCIKIT-LEARN · MYSQL · TAILWIND CSS</span>
+      <span class="flex-shrink-0 text-amber-400">OPEN TO OPPORTUNITIES</span>
+      <span class="flex-shrink-0">GITHUB · LINKEDIN · EMAIL</span>
+      <span class="text-ice-400 flex-shrink-0 px-4">&#9632; DEVELOPER PROFILE</span>
+      <span class="flex-shrink-0">FULL-STACK DEVELOPER &amp; ML ENGINEER</span>
+      <span class="flex-shrink-0 text-sage-400">RITAVED — ACADEMY FINAL PROJECT</span>
+      <span class="flex-shrink-0">PYTHON · FLASK · SCIKIT-LEARN · MYSQL · TAILWIND CSS</span>
+      <span class="flex-shrink-0 text-amber-400">OPEN TO OPPORTUNITIES</span>
+      <span class="flex-shrink-0">GITHUB · LINKEDIN · EMAIL</span>
+    </div>
+  </div>
+
+
+  <!-- ══════════ HERO — PROFILE ══════════ -->
+  <section class="grid-bg relative min-h-screen flex items-center pt-28 pb-16 px-6 md:px-12 overflow-hidden">
+
+    <!-- Floating orbs -->
+    <div class="orb  absolute top-1/3 right-16 w-72 h-72 rounded-full pointer-events-none"
+      style="background:radial-gradient(circle,rgba(96,200,245,.06) 0%,transparent 70%)"></div>
+    <div class="orb2 absolute bottom-1/4 left-8 w-56 h-56 rounded-full pointer-events-none"
+      style="background:radial-gradient(circle,rgba(52,211,153,.05) 0%,transparent 70%)"></div>
+    <div class="orb3 absolute top-1/4 left-1/3 w-40 h-40 rounded-full pointer-events-none"
+      style="background:radial-gradient(circle,rgba(239,68,68,.04) 0%,transparent 70%)"></div>
+
+    <div class="relative z-10 max-w-6xl mx-auto w-full">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <!-- Left: identity block -->
+        <div>
+          <p class="font-mono text-xs text-ice-400 tracking-widest mb-6">// DEVELOPER PROFILE</p>
+
+          <!-- Avatar + name -->
+          <div class="flex items-center gap-6 mb-8">
+            <div class="avatar-ring">
+              <!--
+              ════════════════════════════════════
+              REPLACE with your photo:
+              <img src="static/img/Rahul.jfif"
+                   class="w-full h-full object-cover"
+                   alt="Your Name" />
+              ════════════════════════════════════
+            -->
+              <svg class="w-16 h-16" style="color:#0D2137" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="1">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982
+                       2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112
+                       21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+
+            <div>
+              <!-- ▼ Replace with your name -->
+              <h1 class="font-display text-5xl md:text-6xl text-white tracking-widest leading-none">
+                YOUR<br /><span class="text-ice-400">NAME</span>
+              </h1>
+              <p class="font-mono text-xs text-slate-500 tracking-widest mt-2">
+                FULL-STACK DEV · ML ENGINEER · INDIA
+              </p>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="h-[1px] w-full mb-8" style="background:linear-gradient(90deg,rgba(96,200,245,.3),transparent)">
+          </div>
+
+          <!-- Bio -->
+          <!-- ▼ Replace this paragraph with your own bio -->
+          <p class="font-body text-xl text-slate-300 leading-relaxed mb-6">
+            I'm a final-year Computer Science student with a passion for building
+            <em class="text-white">data-driven applications</em> that solve real problems.
+            Ritaved is my academy capstone — combining machine learning, backend engineering,
+            and clinical domain knowledge into a production-quality portfolio piece.
+          </p>
+          <p class="font-body text-lg text-slate-400 leading-relaxed mb-8">
+            When I'm not training models or writing Flask APIs, I build full-stack fitness
+            tracking apps, experiment with React dashboards, and contribute to open-source
+            data science tooling.
+          </p>
+
+          <!-- Status badges -->
+          <div class="flex flex-wrap gap-3 mb-8">
+            <span class="flex items-center gap-2 font-mono text-xs text-sage-400 border border-sage-400/25
+                       px-3 py-1.5 rounded-lg" style="background:rgba(52,211,153,.05)">
+              <span class="w-1.5 h-1.5 rounded-full bg-sage-400 blink"></span>
+              OPEN TO OPPORTUNITIES
+            </span>
+            <span class="font-mono text-xs border border-navy-700 px-3 py-1.5 rounded-lg" style="color:#334E68">
+              📍 INDIA
+            </span>
+            <span class="font-mono text-xs border border-navy-700 px-3 py-1.5 rounded-lg" style="color:#334E68">
+              🎓 FINAL YEAR CS
+            </span>
+          </div>
+
+          <!-- Social links -->
+          <div class="flex flex-wrap gap-3">
+
+            <!-- GitHub — replace href with your URL -->
+            <a href="https://github.com/YOUR_USERNAME" target="_blank" class="social-link">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839
+                       9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703
+                       -2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466
+                       -1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032
+                       1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088
+                       .636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988
+                       1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75
+                       1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337
+                       1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1
+                       2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566
+                       4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747
+                       0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484
+                       17.522 2 12 2z" />
+              </svg>
+              GITHUB
+            </a>
+
+            <!-- LinkedIn — replace href with your URL -->
+            <a href="https://linkedin.com/in/YOUR_PROFILE" target="_blank" class="social-link">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037
+                       -1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046
+                       c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z
+                       M5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063
+                       2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0
+                       .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24
+                       23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+              LINKEDIN
+            </a>
+
+            <!-- Email — replace href -->
+            <a href="mailto:your@email.com" class="social-link">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0
+                       01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25
+                       0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615
+                       a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              EMAIL ME
+            </a>
+
+            <!-- Resume — replace href with your file path -->
+            <a href="static/resume.pdf" target="_blank" class="social-link"
+              style="border-color:rgba(96,200,245,.2);color:#60C8F5;background:rgba(96,200,245,.05)">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021
+                       18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              RESUME PDF
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Right: terminal card -->
+        <div class="reveal">
+          <div class="terminal">
+            <div class="terminal-dots">
+              <span style="background:#EF4444"></span>
+              <span style="background:#FBBF24"></span>
+              <span style="background:#34D399"></span>
+            </div>
+            <div class="terminal-body">
+              <p><span class="t-dim">$</span> <span class="t-key">cat</span> developer.json</p>
+              <p class="t-dim">{</p>
+              <p>&nbsp;&nbsp;<span class="t-key">"name"</span><span class="t-dim">:</span> <span class="t-str">"Your
+                  Name"</span><span class="t-dim">,</span></p>
+              <p>&nbsp;&nbsp;<span class="t-key">"role"</span><span class="t-dim">:</span> <span
+                  class="t-str">"Full-Stack Dev &amp; ML Engineer"</span><span class="t-dim">,</span></p>
+              <p>&nbsp;&nbsp;<span class="t-key">"education"</span><span class="t-dim">:</span> <span
+                  class="t-str">"B.Sc Computer Science"</span><span class="t-dim">,</span></p>
+              <p>&nbsp;&nbsp;<span class="t-key">"languages"</span><span class="t-dim">: [</span></p>
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-val">"Python"</span><span class="t-dim">,</span> <span
+                  class="t-val">"JavaScript"</span><span class="t-dim">,</span> <span class="t-val">"SQL"</span></p>
+              <p>&nbsp;&nbsp;<span class="t-dim">],</span></p>
+              <p>&nbsp;&nbsp;<span class="t-key">"stack"</span><span class="t-dim">: {</span></p>
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"ml"</span><span class="t-dim">:</span> <span
+                  class="t-str">"scikit-learn, pandas, numpy"</span><span class="t-dim">,</span></p>
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"backend"</span><span class="t-dim">:</span> <span
+                  class="t-str">"Flask, Django, MySQL"</span><span class="t-dim">,</span></p>
+              <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">"frontend"</span><span class="t-dim">:</span> <span
+                  class="t-str">"React, Tailwind CSS"</span></p>
+              <p>&nbsp;&nbsp;<span class="t-dim">},</span></p>
+              <p>&nbsp;&nbsp;<span class="t-key">"capstone"</span><span class="t-dim">:</span> <span
+                  class="t-str">"Ritaved — COVID Risk ML"</span><span class="t-dim">,</span></p>
+              <p>&nbsp;&nbsp;<span class="t-key">"status"</span><span class="t-dim">:</span> <span
+                  class="t-val">"open_to_work"</span></p>
+              <p class="t-dim">}</p>
+              <p class="mt-2"><span class="t-dim">$</span> <span class="cursor"></span></p>
+            </div>
+          </div>
+
+          <!-- Quick stats under terminal -->
+          <div class="grid grid-cols-3 gap-3 mt-4">
+            <div class="metric-card text-center">
+              <p class="font-display text-3xl tracking-widest text-ice-400">5+</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">PROJECTS</p>
+            </div>
+            <div class="metric-card text-center">
+              <p class="font-display text-3xl tracking-widest text-sage-400">1M+</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">RECORDS ML</p>
+            </div>
+            <div class="metric-card text-center">
+              <p class="font-display text-3xl tracking-widest text-amber-400">3</p>
+              <p class="font-mono text-xs mt-1" style="color:#334E68">FRAMEWORKS</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════ SKILLS ══════════ -->
+  <section class="py-20 px-6 md:px-12 border-t border-navy-800 reveal">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="flex items-center gap-4 mb-10">
+        <span class="font-mono text-xs text-ice-400 tracking-widest border border-ice-400/30
+                   bg-ice-400/5 px-3 py-1 rounded-lg">SKILLS</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">TECH STACK</h2>
+      </div>
+
+      <div class="space-y-6">
+
+        <!-- Row: Languages -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="font-mono text-xs w-32 flex-shrink-0" style="color:#1E3A55">LANGUAGES</span>
+          <span class="skill-pill">Python</span>
+          <span class="skill-pill">JavaScript</span>
+          <span class="skill-pill">HTML / CSS</span>
+          <span class="skill-pill">SQL</span>
+          <span class="skill-pill">Bash</span>
+        </div>
+
+        <!-- Row: ML / Data -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="font-mono text-xs w-32 flex-shrink-0" style="color:#1E3A55">ML / DATA</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">scikit-learn</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">pandas</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">NumPy</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">Matplotlib</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">Seaborn</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">SMOTE</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">Random Forest</span>
+          <span class="skill-pill" style="border-color:rgba(96,200,245,.2);color:#60C8F5">XGBoost</span>
+        </div>
+
+        <!-- Row: Backend -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="font-mono text-xs w-32 flex-shrink-0" style="color:#1E3A55">BACKEND</span>
+          <span class="skill-pill" style="border-color:rgba(52,211,153,.2);color:#34D399">Flask</span>
+          <span class="skill-pill" style="border-color:rgba(52,211,153,.2);color:#34D399">Django</span>
+          <span class="skill-pill" style="border-color:rgba(52,211,153,.2);color:#34D399">MySQL</span>
+          <span class="skill-pill" style="border-color:rgba(52,211,153,.2);color:#34D399">REST APIs</span>
+          <span class="skill-pill" style="border-color:rgba(52,211,153,.2);color:#34D399">SQLAlchemy</span>
+        </div>
+
+        <!-- Row: Frontend -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="font-mono text-xs w-32 flex-shrink-0" style="color:#1E3A55">FRONTEND</span>
+          <span class="skill-pill" style="border-color:rgba(251,191,36,.2);color:#FBBF24">React</span>
+          <span class="skill-pill" style="border-color:rgba(251,191,36,.2);color:#FBBF24">Tailwind CSS</span>
+          <span class="skill-pill" style="border-color:rgba(251,191,36,.2);color:#FBBF24">Chart.js</span>
+          <span class="skill-pill" style="border-color:rgba(251,191,36,.2);color:#FBBF24">Fetch / AJAX</span>
+          <span class="skill-pill" style="border-color:rgba(251,191,36,.2);color:#FBBF24">Responsive Design</span>
+        </div>
+
+        <!-- Row: Tools -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="font-mono text-xs w-32 flex-shrink-0" style="color:#1E3A55">TOOLS</span>
+          <span class="skill-pill">Git &amp; GitHub</span>
+          <span class="skill-pill">VS Code</span>
+          <span class="skill-pill">Jupyter</span>
+          <span class="skill-pill">Postman</span>
+          <span class="skill-pill">MySQL Workbench</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <div class="max-w-6xl mx-auto px-6 md:px-12">
+    <div class="h-divider"></div>
+  </div>
+
+
+  <!-- ══════════ PROJECTS ══════════ -->
+  <section class="py-20 px-6 md:px-12 reveal">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="flex items-center gap-4 mb-10">
+        <span class="font-mono text-xs text-amber-400 tracking-widest border border-amber-400/30
+                   bg-amber-400/5 px-3 py-1 rounded-lg">PROJECTS</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">PORTFOLIO</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- ── Project 1: Ritaved (this project) ── -->
+        <div class="proj-card" style="border-color:rgba(96,200,245,.25);grid-column:span 1">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-10 h-10 rounded-xl bg-ice-400/10 border border-ice-400/20
+                      flex items-center justify-center text-xl">🧬</div>
+            <span class="font-mono text-xs px-2 py-0.5 rounded"
+              style="background:rgba(52,211,153,.1);color:#34D399;border:1px solid rgba(52,211,153,.25)">
+              FEATURED
+            </span>
+          </div>
+          <h3 class="font-display text-2xl text-white tracking-widest mb-1">RITAVED</h3>
+          <p class="font-mono text-xs text-ice-400 mb-3 tracking-wide">COVID-19 RISK TRIAGE ML SYSTEM</p>
+          <p class="font-body text-slate-400 text-base leading-relaxed mb-4">
+            End-to-end ML system with Random Forest classifier trained on 1M+ patient records.
+            Full-stack Flask web app with live triage dashboard, analytics, and REST API.
+          </p>
+          <div class="flex flex-wrap gap-1.5 mb-5">
+            <span class="skill-pill" style="font-size:.65rem">Python</span>
+            <span class="skill-pill" style="font-size:.65rem">Flask</span>
+            <span class="skill-pill" style="font-size:.65rem">scikit-learn</span>
+            <span class="skill-pill" style="font-size:.65rem">MySQL</span>
+            <span class="skill-pill" style="font-size:.65rem">Tailwind</span>
+          </div>
+          <div class="flex gap-3">
+            <!-- Replace href with your repo URL -->
+            <a href="https://github.com/YOUR_USERNAME/ritaved" target="_blank"
+              class="font-mono text-xs text-ice-400 hover:text-ice-300 transition-colors tracking-widest">
+              GITHUB →
+            </a>
+          </div>
+        </div>
+
+        <!-- ── Project 2: Fitness App ── -->
+        <div class="proj-card">
+          <div class="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20
+                    flex items-center justify-center text-xl mb-4">💪</div>
+          <h3 class="font-display text-2xl text-white tracking-widest mb-1">FITTRACK</h3>
+          <p class="font-mono text-xs text-amber-400 mb-3 tracking-wide">FITNESS TRACKING APPLICATION</p>
+          <p class="font-body text-slate-400 text-base leading-relaxed mb-4">
+            Full-stack fitness tracker with workout logging, progress charts, and personalised
+            training plan generation. React frontend, Django REST API backend, PostgreSQL.
+          </p>
+          <div class="flex flex-wrap gap-1.5 mb-5">
+            <span class="skill-pill" style="font-size:.65rem">React</span>
+            <span class="skill-pill" style="font-size:.65rem">Django</span>
+            <span class="skill-pill" style="font-size:.65rem">PostgreSQL</span>
+            <span class="skill-pill" style="font-size:.65rem">Chart.js</span>
+          </div>
+          <div class="flex gap-3">
+            <a href="https://github.com/YOUR_USERNAME" target="_blank"
+              class="font-mono text-xs text-ice-400 hover:text-ice-300 transition-colors tracking-widest">
+              GITHUB →
+            </a>
+            <a href="#" class="font-mono text-xs" style="color:#334E68">
+              DEMO SOON
+            </a>
+          </div>
+        </div>
+
+        <!-- ── Project 3: E-Commerce ── -->
+        <div class="proj-card">
+          <div class="w-10 h-10 rounded-xl bg-alert-500/10 border border-alert-500/20
+                    flex items-center justify-center text-xl mb-4">🛒</div>
+          <h3 class="font-display text-2xl text-white tracking-widest mb-1">SHOPIFY CLONE</h3>
+          <p class="font-mono text-xs text-alert-400 mb-3 tracking-wide">E-COMMERCE PLATFORM</p>
+          <p class="font-body text-slate-400 text-base leading-relaxed mb-4">
+            Feature-complete e-commerce platform with product catalogue, cart management,
+            Stripe payments integration, and an order management admin panel.
+          </p>
+          <div class="flex flex-wrap gap-1.5 mb-5">
+            <span class="skill-pill" style="font-size:.65rem">Flask</span>
+            <span class="skill-pill" style="font-size:.65rem">MySQL</span>
+            <span class="skill-pill" style="font-size:.65rem">Stripe API</span>
+            <span class="skill-pill" style="font-size:.65rem">Jinja2</span>
+          </div>
+          <div class="flex gap-3">
+            <a href="https://github.com/YOUR_USERNAME" target="_blank"
+              class="font-mono text-xs text-ice-400 hover:text-ice-300 transition-colors tracking-widest">
+              GITHUB →
+            </a>
+          </div>
+        </div>
+
+        <!-- ── Project 4: Data Pipeline ── -->
+        <div class="proj-card">
+          <div class="w-10 h-10 rounded-xl bg-sage-400/10 border border-sage-400/20
+                    flex items-center justify-center text-xl mb-4">📊</div>
+          <h3 class="font-display text-2xl text-white tracking-widest mb-1">DATA PIPELINE</h3>
+          <p class="font-mono text-xs text-sage-400 mb-3 tracking-wide">ETL &amp; ANALYTICS TOOL</p>
+          <p class="font-body text-slate-400 text-base leading-relaxed mb-4">
+            Automated ETL pipeline that ingests CSV/JSON data, cleans and transforms it,
+            and outputs interactive Matplotlib/Seaborn EDA reports as HTML exports.
+          </p>
+          <div class="flex flex-wrap gap-1.5 mb-5">
+            <span class="skill-pill" style="font-size:.65rem">Python</span>
+            <span class="skill-pill" style="font-size:.65rem">pandas</span>
+            <span class="skill-pill" style="font-size:.65rem">Seaborn</span>
+            <span class="skill-pill" style="font-size:.65rem">Jupyter</span>
+          </div>
+          <div class="flex gap-3">
+            <a href="https://github.com/YOUR_USERNAME" target="_blank"
+              class="font-mono text-xs text-ice-400 hover:text-ice-300 transition-colors tracking-widest">
+              GITHUB →
+            </a>
+          </div>
+        </div>
+
+        <!-- ── Project 5: Add yours ── -->
+        <div class="proj-card" style="border-style:dashed;opacity:.5">
+          <div class="w-10 h-10 rounded-xl border border-navy-700
+                    flex items-center justify-center text-xl mb-4" style="color:#1E3A55">+</div>
+          <h3 class="font-display text-2xl tracking-widest mb-1" style="color:#334E68">YOUR PROJECT</h3>
+          <p class="font-mono text-xs mb-3 tracking-wide" style="color:#1E3A55">ADD NEXT PROJECT HERE</p>
+          <p class="font-body text-base leading-relaxed" style="color:#1E3A55">
+            Duplicate any of the project cards above and replace the title, description,
+            tags, and GitHub link with your next project.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <div class="max-w-6xl mx-auto px-6 md:px-12">
+    <div class="h-divider"></div>
+  </div>
+
+
+  <!-- ══════════ ABOUT THIS PROJECT ══════════ -->
+  <section class="py-20 px-6 md:px-12 reveal">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="flex items-center gap-4 mb-10">
+        <span class="font-mono text-xs text-sage-400 tracking-widest border border-sage-400/30
+                   bg-sage-400/5 px-3 py-1 rounded-lg">CAPSTONE</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">THIS PROJECT</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+        <!-- Context -->
+        <div class="space-y-5 font-body text-lg text-slate-400 leading-relaxed">
+          <p>
+            Ritaved was developed as my <strong class="text-white">academy final project</strong>
+            for a Machine Learning &amp; Full-Stack Development course. The brief required
+            a complete end-to-end system — from raw data to deployed web application.
+          </p>
+          <p>
+            I chose COVID-19 risk triage because it presented a genuine technical challenge:
+            extreme class imbalance, real clinical stakes, and a dataset large enough to
+            make model performance differences meaningful.
+          </p>
+          <p>
+            Building Ritaved taught me to navigate the gap between a well-performing Jupyter
+            notebook and a production-quality web service — serialising models, designing
+            REST APIs, handling async frontend state, and presenting data for non-technical users.
+          </p>
+
+          <!-- Key learnings -->
+          <div class="metric-card mt-6">
+            <p class="font-mono text-xs text-ice-400 tracking-widest mb-4">KEY LEARNINGS</p>
+            <ul class="space-y-2.5">
+              <li class="flex items-start gap-3">
+                <span class="text-ice-400 mt-1 flex-shrink-0">▸</span>
+                <span>Handling severely imbalanced datasets using SMOTE without leaking into the test split</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-ice-400 mt-1 flex-shrink-0">▸</span>
+                <span>Exposing a scikit-learn model via a Flask REST API with proper JSON serialisation</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-ice-400 mt-1 flex-shrink-0">▸</span>
+                <span>Building async UI updates with vanilla Fetch — no React required for the dashboard</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-ice-400 mt-1 flex-shrink-0">▸</span>
+                <span>Designing for clinical users: clear risk indicators, disclaimers, and accessible language</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="text-ice-400 mt-1 flex-shrink-0">▸</span>
+                <span>Choosing evaluation metrics (F1, AUC-ROC) that reflect real-world cost of false negatives</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Architecture diagram (text-based) -->
+        <div class="metric-card font-mono text-xs leading-relaxed" style="color:#334E68">
+          <p class="text-ice-400 tracking-widest mb-5">SYSTEM ARCHITECTURE</p>
+
+          <div class="space-y-2">
+            <!-- Layer 1 -->
+            <div class="rounded-lg px-4 py-3 text-center"
+              style="background:rgba(96,200,245,.06);border:1px solid rgba(96,200,245,.15);color:#60C8F5">
+              BROWSER CLIENT — HTML / CSS / JS
+            </div>
+            <div class="text-center" style="color:#1E3A55">&#8595; Fetch POST JSON</div>
+
+            <!-- Layer 2 -->
+            <div class="rounded-lg px-4 py-3 text-center"
+              style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.15);color:#34D399">
+              FLASK REST API — /api/predict_risk
+            </div>
+            <div class="text-center" style="color:#1E3A55">&#8595; Preprocesses payload</div>
+
+            <!-- Layer 3 -->
+            <div class="rounded-lg px-4 py-3 text-center"
+              style="background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.15);color:#FBBF24">
+              RANDOM FOREST MODEL — joblib .pkl
+            </div>
+            <div class="text-center" style="color:#1E3A55">&#8595; predict_proba()</div>
+
+            <!-- Layer 4 -->
+            <div class="grid grid-cols-2 gap-2">
+              <div class="rounded-lg px-3 py-2.5 text-center"
+                style="background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);color:#F87171">
+                RISK SCORE RESPONSE
+              </div>
+              <div class="rounded-lg px-3 py-2.5 text-center"
+                style="background:rgba(13,33,55,.8);border:1px solid rgba(13,33,55,1);color:#334E68">
+                MYSQL AUDIT LOG
+              </div>
+            </div>
+            <div class="text-center" style="color:#1E3A55">&#8595; JSON response to client</div>
+
+            <!-- Layer 5 -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <div class="max-w-6xl mx-auto px-6 md:px-12">
+    <div class="h-divider"></div>
+  </div>
+
+
+  <!-- ══════════ CONTACT FORM ══════════ -->
+  <section class="py-20 px-6 md:px-12 reveal">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="flex items-center gap-4 mb-10">
+        <span class="font-mono text-xs text-alert-400 tracking-widest border border-alert-400/30
+                   bg-alert-400/5 px-3 py-1 rounded-lg">CONTACT</span>
+        <h2 class="font-display text-5xl text-white tracking-widest">GET IN TOUCH</h2>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-10">
+
+        <!-- Left: message -->
+        <div>
+          <p class="font-body text-xl text-slate-400 leading-relaxed mb-6">
+            Interested in collaborating, hiring, or just want to talk data science?
+            Send a message and I'll get back to you within 24 hours.
+          </p>
+
+          <!-- Contact info tiles -->
+          <div class="space-y-3">
+            <div class="flex items-center gap-4 px-4 py-3 rounded-xl border border-navy-700 bg-navy-900/40">
+              <svg class="w-5 h-5 flex-shrink-0 text-ice-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0
+                       01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25
+                       0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615
+                       a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              <!-- ▼ Replace with your email -->
+              <span class="font-mono text-sm text-slate-300">your@email.com</span>
+            </div>
+            <div class="flex items-center gap-4 px-4 py-3 rounded-xl border border-navy-700 bg-navy-900/40">
+              <svg class="w-5 h-5 flex-shrink-0 text-ice-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839
+                       9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703
+                       -2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466
+                       -1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032
+                       1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088
+                       .636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988
+                       1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75
+                       1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337
+                       1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1
+                       2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566
+                       4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747
+                       0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484
+                       17.522 2 12 2z" />
+              </svg>
+              <!-- ▼ Replace with your GitHub -->
+              <span class="font-mono text-sm text-slate-300">github.com/YOUR_USERNAME</span>
+            </div>
+            <div class="flex items-center gap-4 px-4 py-3 rounded-xl border border-navy-700 bg-navy-900/40">
+              <svg class="w-5 h-5 flex-shrink-0 text-ice-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037
+                       -1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046
+                       c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286z
+                       M5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063
+                       2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0
+                       .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24
+                       23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+              <!-- ▼ Replace with your LinkedIn -->
+              <span class="font-mono text-sm text-slate-300">linkedin.com/in/YOUR_PROFILE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: contact form -->
+        <form id="contact-form" class="space-y-4" novalidate>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block font-mono text-xs tracking-widest mb-2" style="color:#334E68">NAME</label>
+              <input id="c-name" type="text" placeholder="Your name" class="rtv-input" />
+            </div>
+            <div>
+              <label class="block font-mono text-xs tracking-widest mb-2" style="color:#334E68">EMAIL</label>
+              <input id="c-email" type="email" placeholder="your@email.com" class="rtv-input" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-mono text-xs tracking-widest mb-2" style="color:#334E68">SUBJECT</label>
+            <input id="c-subject" type="text" placeholder="e.g. Collaboration opportunity" class="rtv-input" />
+          </div>
+
+          <div>
+            <label class="block font-mono text-xs tracking-widest mb-2" style="color:#334E68">MESSAGE</label>
+            <textarea id="c-message" rows="5" placeholder="Your message..." class="rtv-input resize-none"
+              style="resize:none"></textarea>
+          </div>
+
+          <button type="submit" id="contact-btn" class="w-full py-3.5 rounded-xl font-mono text-xs tracking-widest font-medium
+                       bg-ice-400 text-navy-950 hover:bg-ice-300 active:scale-[.98]
+                       transition-all flex items-center justify-center gap-2.5">
+            <svg id="c-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
+            <svg id="c-spinner" class="spinner w-4 h-4 hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span id="c-btn-text">SEND MESSAGE</span>
+          </button>
+
+          <!-- Success / error state -->
+          <div id="c-success" class="hidden rounded-xl border border-sage-400/30 px-4 py-3
+                                   font-mono text-xs text-sage-400 flex items-center gap-2"
+            style="background:rgba(52,211,153,.05)">
+            <span>&#10003;</span>
+            <span>Message sent! I'll reply within 24 hours.</span>
+          </div>
+          <div id="c-error" class="hidden rounded-xl border border-alert-500/30 px-4 py-3
+                                 font-mono text-xs text-alert-400 flex items-center gap-2"
+            style="background:rgba(239,68,68,.05)">
+            <span>&#9888;</span>
+            <span>Please fill in all fields before sending.</span>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════ FINAL CTA ══════════ -->
+  <section class="py-24 px-6 text-center relative overflow-hidden border-t border-navy-800">
+    <div class="absolute inset-0 grid-bg opacity-40 pointer-events-none"></div>
+    <div class="absolute inset-0 pointer-events-none"
+      style="background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(96,200,245,.05) 0%,transparent 70%)"></div>
+    <div class="relative z-10 max-w-2xl mx-auto">
+      <p class="font-mono text-xs tracking-widest mb-6" style="color:#334E68">// EXPLORE THE SYSTEM</p>
+      <h2 class="font-display text-6xl text-white tracking-widest mb-3 leading-none">
+        READY TO
+      </h2>
+      <h2 class="font-display text-6xl text-ice-400 tracking-widest mb-8 leading-none">
+        ANALYSE?
+      </h2>
+      <p class="font-body text-xl text-slate-400 italic mb-10">
+        Open the triage system, submit a patient, and see the AI verdict in under a second.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href='/triage' class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-mono text-sm tracking-widest
+                bg-ice-400 text-navy-950 hover:bg-ice-300 transition-all hover:shadow-lg hover:shadow-ice-400/20">
+          OPEN TRIAGE
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </a>
+        <a href='/analytics' class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-mono text-sm tracking-widest
+                border border-navy-700 text-slate-400 hover:border-ice-400/30 hover:text-ice-400 transition-all">
+          ANALYTICS
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="border-t border-navy-800 px-6 md:px-12 py-6">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="font-display text-xl tracking-widest text-white">
+          RITA<span class="text-ice-400">VED</span>
+        </span>
+        <span class="font-mono text-xs" style="color:#112B47">v1.0 · Academy Final Project</span>
+      </div>
+      <div class="flex gap-6 font-mono text-xs" style="color:#334E68">
+        <a href='/' class="hover:text-ice-400 transition-colors tracking-widest">HOME</a>
+        <a href='/triage' class="hover:text-ice-400 transition-colors tracking-widest">TRIAGE</a>
+        <a href='/analytics' class="hover:text-ice-400 transition-colors tracking-widest">ANALYTICS</a>
+      </div>
+      <p class="font-mono text-xs" style="color:#1E3A55">&copy; 2025 RITAVED</p>
+    </div>
+  </footer>
+
+
+  <!-- ════════════ JAVASCRIPT ════════════ -->
+  <script>
+    /* ── Mobile menu ── */
+    let menuOpen = false;
+    document.getElementById("hamburger").addEventListener("click", () => {
+      menuOpen = !menuOpen;
+      const m = document.getElementById("mobile-menu");
+      m.style.opacity = menuOpen ? "1" : "0";
+      m.style.pointerEvents = menuOpen ? "all" : "none";
+      m.style.transform = menuOpen ? "translateY(0)" : "translateY(-8px)";
+    });
+
+    /* ── Scroll reveal ── */
+    const revealEls = document.querySelectorAll(".reveal");
+    const revealObs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
+    }, { threshold: 0.1 });
+    revealEls.forEach(el => revealObs.observe(el));
+
+    /* ── Contact form (client-side validation + mailto fallback) ── */
+    document.getElementById("contact-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("c-name").value.trim();
+      const email = document.getElementById("c-email").value.trim();
+      const subject = document.getElementById("c-subject").value.trim();
+      const message = document.getElementById("c-message").value.trim();
+
+      const successEl = document.getElementById("c-success");
+      const errorEl = document.getElementById("c-error");
+      successEl.classList.add("hidden");
+      errorEl.classList.add("hidden");
+
+      if (!name || !email || !subject || !message) {
+        errorEl.classList.remove("hidden");
+        return;
+      }
+
+      // Loading state
+      const btn = document.getElementById("contact-btn");
+      const icon = document.getElementById("c-icon");
+      const spinner = document.getElementById("c-spinner");
+      const btnText = document.getElementById("c-btn-text");
+      btn.disabled = true;
+      icon.classList.add("hidden");
+      spinner.classList.remove("hidden");
+      btnText.textContent = "SENDING...";
+
+      // Simulate send delay (replace with real email API if you have one)
+      await new Promise(r => setTimeout(r, 1200));
+
+      // Fallback: open mailto link
+      const mailto = `mailto:your@email.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent("From: " + name + " (" + email + ")\n\n" + message)}`;
+      window.location.href = mailto;
+
+      // Show success
+      successEl.classList.remove("hidden");
+      document.getElementById("contact-form").reset();
+
+      btn.disabled = false;
+      icon.classList.remove("hidden");
+      spinner.classList.add("hidden");
+      btnText.textContent = "SEND MESSAGE";
+    });
+  </script>
+
+</body>
+
+</html>
