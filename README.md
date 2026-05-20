@@ -19,7 +19,7 @@ This project focuses on delivering a seamless, highly available user experience 
 ![Triage Dashboard](assets/Triage.png)
 
 **Data Science Analytics**
-![Analytics & Methodology](assets/analytics.png)
+![Analytics & Methodology](assets/Analytics.png)
 
 ## 🛠️ Tech Stack
 
