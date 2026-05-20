@@ -14,8 +14,7 @@ This project focuses on delivering a seamless, highly available user experience 
 
 ### Clinical Triage Dashboard
 
-_The primary interface for inputting patient vitals and symptom severity to generate instant risk assessments._
-![COVID Triage Dashboard](assets/triage-dashboard.png)
+[COVID Triage Dashboard](assets/Homepage.png)
 
 ## 🛠️ Tech Stack
 
