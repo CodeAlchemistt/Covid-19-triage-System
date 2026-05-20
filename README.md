@@ -12,9 +12,14 @@ This project focuses on delivering a seamless, highly available user experience 
 
 ## 📸 Visual Project Showcase
 
-### Clinical Triage Dashboard
+\*\*Clinical Triage Dashboard
+![COVID Triage Dashboard](assets/Homepage.png)
 
-[COVID Triage Dashboard](assets/Homepage.png)
+**Live Triage Dashboard**
+![Triage Dashboard](assets/Triage.jpeg)
+
+**Data Science Analytics**
+![Analytics & Methodology](assets/analytics.jpeg)
 
 ## 🛠️ Tech Stack
 
